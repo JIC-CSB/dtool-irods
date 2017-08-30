@@ -13,6 +13,16 @@ from dtoolcore.filehasher import FileHasher, md5sum
 from dtool_irods import CommandWrapper
 
 
+def _get_text(irods_path):
+    # Command to get contents of file to stdout.
+    cmd = CommandWrapper([
+        "iget",
+        irods_path,
+        "-"
+    ])
+    return cmd()
+
+
 class IrodsStorageBroker(object):
     """
     Storage broker to interact with datasets in iRODS.
