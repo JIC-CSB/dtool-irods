@@ -14,7 +14,12 @@ setup(
     author="Tjelvar Olsson",
     author_email="tjelvar.olsson@jic.ac.uk",
     url=url,
-    install_requires=[],
     download_url="{}/tarball/{}".format(url, version),
+    install_requires=[],
+    entry_points={
+        "dtool.storage_brokers": [
+            "IrodsStorageBroker=dtool_irods.storagebroker:IrodsStorageBroker",
+        ],
+    },
     license="MIT"
 )
