@@ -10,6 +10,8 @@ from dtoolcore.utils import (
 )
 from dtoolcore.filehasher import FileHasher, md5sum
 
+from dtool_irods import CommandWrapper
+
 
 class IrodsStorageBroker(object):
     """
