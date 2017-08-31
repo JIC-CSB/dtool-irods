@@ -35,7 +35,7 @@ class IrodsStorageBroker(object):
     #: function name to the manifest.
     hasher = FileHasher(md5sum)
 
-    def __init__(self, uri, config_path=None):
+    def __init__(self, uri, config=None):
         pass
 
 #############################################################################
