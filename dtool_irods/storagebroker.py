@@ -29,7 +29,6 @@ def _get_text(irods_path):
 
 def _put_text(irods_path, text):
     """Put raw text into iRODS."""
-    logger.debug("In _put_text")
     with tempfile.NamedTemporaryFile() as fh:
         fpath = fh.name
         fh.write(text)
@@ -51,9 +50,7 @@ def _get_obj(irods_path):
 
 def _put_obj(irods_path, obj):
     """Put python object into iRODS as JSON text."""
-    logger.debug("In _put_obj")
     text = json.dumps(obj)
-    logger.debug("text from json: {}".format(text))
     _put_text(irods_path, text)
 
 
@@ -170,7 +167,6 @@ class IrodsStorageBroker(object):
 
     def create_structure(self):
         """Create necessary structure to hold a dataset."""
-        logger.debug("In create structure")
 
         # Ensure that the specified path does not exist and create it.
         path_exists = CommandWrapper(["ils", self._abspath])
@@ -179,7 +175,6 @@ class IrodsStorageBroker(object):
             raise(StorageBrokerOSError(
                 "Path already exists: {}".format(self._abspath)
             ))
-        logger.debug("About to create directory")
         create_path = CommandWrapper(["imkdir", self._abspath])
         create_path()
 
@@ -204,7 +199,6 @@ class IrodsStorageBroker(object):
 
         :param admin_metadata: dictionary with administrative metadata
         """
-        logger.debug("In put_admin_metadata")
         _put_obj(self._admin_metadata_fpath, admin_metadata)
 
     def put_manifest(self, manifest):

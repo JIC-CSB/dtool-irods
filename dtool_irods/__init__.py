@@ -42,9 +42,11 @@ class CommandWrapper(object):
         if self.success():
             return self.stdout
         else:
-            logger.warning("Command failed: {}".format(self.args))
-            logger.warning(self.stderr)
-            sys.stderr.write(self.stderr)
-
             if exit_on_failure:
+                logger.warning("Command failed: {}".format(self.args))
+                logger.warning(self.stderr)
+                sys.stderr.write(self.stderr)
                 sys.exit(self.returncode)
+            else:
+                logger.info("Command failed: {}".format(self.args))
+                logger.info(self.stderr)
