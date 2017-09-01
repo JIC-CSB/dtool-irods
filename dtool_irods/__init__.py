@@ -1,12 +1,13 @@
 """dtool_irods package."""
 
-import logging
 import sys
+import logging
 from subprocess import Popen, PIPE
 
 __version__ = "0.1.0"
 
 logger = logging.getLogger(__name__)
+
 
 
 class CommandWrapper(object):
