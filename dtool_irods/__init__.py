@@ -9,7 +9,6 @@ __version__ = "0.1.0"
 logger = logging.getLogger(__name__)
 
 
-
 class CommandWrapper(object):
     """Class for creating API calls from command line tools."""
 

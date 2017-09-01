@@ -2,12 +2,10 @@
 
 import os
 import json
-import shutil
 import logging
 import tempfile
 
 from dtoolcore.utils import (
-    mkdir_parents,
     generate_identifier,
 )
 from dtoolcore.filehasher import FileHasher, md5sum
@@ -149,7 +147,6 @@ class IrodsStorageBroker(object):
         :returns: manifest as a dictionary
         """
         return _get_obj(self._manifest_abspath)
-
 
     def get_overlay(self, overlay_name):
         """Return overlay as a dictionary.
