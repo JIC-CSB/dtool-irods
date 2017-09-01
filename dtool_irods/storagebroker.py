@@ -4,6 +4,8 @@ import os
 import json
 import logging
 import tempfile
+import time
+import datetime
 
 from dtoolcore.utils import (
     generate_identifier,
@@ -90,7 +92,7 @@ class IrodsStorageBroker(object):
             'tmp_fragments'
         )
 
-        self._irods_cache_abspath = os.path.abspath("~/.dtool_irods_cache")
+        self._irods_cache_abspath = os.path.abspath("/tmp/dtool_irods_cache")
         if not os.path.isdir(self._irods_cache_abspath):
             os.mkdir(self._irods_cache_abspath)
 
@@ -288,9 +290,74 @@ class IrodsStorageBroker(object):
 
     def iter_item_handles(self):
         """Return iterator over item handles."""
+        list_data = CommandWrapper([
+            "ils",
+            self._data_abspath
+        ])
+        list_data()
+        lines = list_data.stdout.strip()
+        relevant_lines = lines.split("\n")[1:]
+        for line in relevant_lines:
+            yield line.strip()
 
     def item_properties(self, handle):
         """Return properties of the item with the given handle."""
+        logging.debug("handle: {}".format(handle))
+        irods_item_path = os.path.join(self._data_abspath, handle)
+
+        # Get the hash.
+        irods_checksum_cmd = CommandWrapper([
+            "ichksum",
+            irods_item_path
+        ])
+        irods_checksum_cmd()
+        def get_checksum_from_stdout(stdout):
+            line = stdout.strip()
+            info = line.split()
+            compound_chksum = info[1]
+            alg, checksum = compound_chksum.split(":")
+            return checksum
+        checksum = get_checksum_from_stdout(irods_checksum_cmd.stdout)
+
+        # Get the UTC timestamp and the size in bytes.
+        irods_ls_cmd = CommandWrapper([
+            "ils",
+            "-l",
+            irods_item_path
+        ])
+        irods_ls_cmd()
+        def get_size_and_timestamp_from_stdout(stdout):
+            first_line = stdout.split("\n")[0].strip()
+            info = first_line.split()
+            size_in_bytes = info[3]
+            time_str = info[4]
+            dt = datetime.datetime.strptime(time_str, "%Y-%m-%d.%H:%M")
+            utc_timestamp = int(time.mktime(dt.timetuple()))
+            return size_in_bytes, utc_timestamp
+        size, timestamp = get_size_and_timestamp_from_stdout(irods_ls_cmd.stdout)
+
+        # Get the relpath handle.
+        get_handle_metadata = CommandWrapper([
+            "imeta",
+            "ls",
+            "-d",
+            irods_item_path,
+            "handle"
+        ])
+        get_handle_metadata()
+        def get_value_from_meta(irods_meta_output):
+            value_line = irods_meta_output.split('\n')[2]
+            return value_line.split()[1]
+        relpath = get_value_from_meta(get_handle_metadata.stdout)
+
+        properties = {
+            'size_in_bytes': size,
+            'utc_timestamp': timestamp,
+            'hash': checksum,
+            'relpath': relpath
+        }
+        return properties
+
 
     def _handle_to_fragment_absprefixpath(self, handle):
         return generate_identifier(handle)
@@ -314,6 +381,7 @@ class IrodsStorageBroker(object):
                        frozen
         :returns: dictionary containing item metadata
         """
+        return {}
 
     def post_freeze_hook(self):
         """Post :meth:`dtoolcore.ProtoDataSet.freeze` cleanup actions.
