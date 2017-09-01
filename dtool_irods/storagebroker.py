@@ -30,18 +30,18 @@ def _get_text(irods_path):
 def _put_text(irods_path, text):
     """Put raw text into iRODS."""
     logger.debug("In _put_text")
-    fh = tempfile.NamedTemporaryFile()
-    fpath = fh.name
-    fh.write(text)
-    fh.flush()
-    cmd = CommandWrapper([
-        "iput",
-        "-f",
-        fpath,
-        irods_path
-    ])
-    logger.debug("_put_text command: {}".format(cmd.args))
-    cmd()
+    with tempfile.NamedTemporaryFile() as fh:
+        fpath = fh.name
+        fh.write(text)
+        fh.flush()
+        cmd = CommandWrapper([
+            "iput",
+            "-f",
+            fpath,
+            irods_path
+        ])
+        cmd()
+    assert not os.path.isfile(fpath)
 
 
 def _get_obj(irods_path):
