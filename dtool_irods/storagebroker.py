@@ -7,6 +7,7 @@ import tempfile
 
 from dtoolcore.utils import (
     generate_identifier,
+    mkdir_parents,
 )
 from dtoolcore.filehasher import FileHasher, md5sum
 from dtoolcore.storagebroker import StorageBrokerOSError
@@ -89,6 +90,11 @@ class IrodsStorageBroker(object):
             'tmp_fragments'
         )
 
+        self._irods_cache_abspath = os.path.abspath("~/.dtool_irods_cache")
+        if not os.path.isdir(self._irods_cache_abspath):
+            os.mkdir(self._irods_cache_abspath)
+
+
     @classmethod
     def generate_uri(cls, name, uuid, prefix):
         dataset_path = os.path.join(prefix, uuid)
@@ -160,6 +166,39 @@ class IrodsStorageBroker(object):
         :param identifier: item identifier
         :returns: absolute path from which the item content can be accessed
         """
+        # Create directory for the specific dataset.
+        dataset_cache_abspath = os.path.join(self._irods_cache_abspath, self.uuid)
+        if not os.path.isdir(dataset_cache_abspath):
+            os.mkdir(dataset_cache_abspath)
+
+        # Get the relpath handle.
+        irods_item_path = os.path.join(self._data_abspath, identifier)
+        get_handle_metadata = CommandWrapper([
+            "imeta",
+            "ls",
+            "-d",
+            irods_item_path,
+            "handle"
+        ])
+        def get_value_from_meta(irods_meta_output):
+            value_line = r.split('\n')[2]
+            return value_line.split()[1]
+        get_value_from_meta()
+        handle = get_value_from_meta(get_value_from_meta.stdout)
+
+        item_abspath = os.path.join(dataset_cache_abspath, handle)
+        mkdir_parents(item_abspath)
+
+        fetch_file_from_irods = CommandWrapper([
+            "iget",
+            irods_item_path,
+            item_abspath
+        ])
+        fetch_file_from_irods()
+
+        return item_abspath
+
+
 
 #############################################################################
 # Methods only used by ProtoDataSet.
