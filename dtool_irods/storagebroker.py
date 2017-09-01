@@ -233,8 +233,19 @@ class IrodsStorageBroker(object):
         fname = generate_identifier(relpath)
         dest_path = os.path.join(self._data_abspath, fname)
 
+        # Put the file into iRODS.
         copy_file = CommandWrapper(["iput", "-f", fpath, dest_path])
         copy_file()
+
+        # Add the realpath handle as metadata.
+        add_relpath_metadata = CommandWrapper([
+            "imeta",
+            "add",
+            "-d",
+            dest_path,
+            "handle",
+            relpath])
+        add_relpath_metadata()
 
     def iter_item_handles(self):
         """Return iterator over item handles."""
