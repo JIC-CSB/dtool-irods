@@ -215,11 +215,12 @@ def test_creation_and_reading(tmp_uuid_and_uri):  # NOQA
     proto_dataset.put_item(local_file_path, 'real_text_file.txt')
     second_handle = 'real_text_file.txt'
     generated_manifest = proto_dataset._generate_manifest()
-    assert generated_manifest['hash_function'] == 'md5sum_hexdigest'
+    assert generated_manifest['hash_function'] == 'sha256sum_hexdigest'
     assert generated_manifest['dtoolcore_version'] == __version__
     expected_identifier = generate_identifier(second_handle)
     assert expected_identifier in generated_manifest['items']
     assert generated_manifest['items'][expected_identifier]['relpath'] \
         == 'real_text_file.txt'
+    expected_hash = sha256sum_hexdigest(local_file_path)
     assert generated_manifest['items'][expected_identifier]['hash'] \
-        == '37dd28e999a6b1472932351745dd9355'
+        == expected_hash
