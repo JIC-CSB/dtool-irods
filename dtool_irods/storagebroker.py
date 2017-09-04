@@ -361,7 +361,8 @@ class IrodsStorageBroker(object):
         return properties
 
     def _handle_to_fragment_absprefixpath(self, handle):
-        return generate_identifier(handle)
+        stem = generate_identifier(handle)
+        return os.path.join(self._metadata_fragments_abspath, stem)
 
     def add_item_metadata(self, handle, key, value):
         """Store the given key:value pair for the item associated with handle.
@@ -371,6 +372,12 @@ class IrodsStorageBroker(object):
         :param key: metadata key
         :param value: metadata value
         """
+        _mkdir_if_missing(self._metadata_fragments_abspath)
+
+        prefix = self._handle_to_fragment_absprefixpath(handle)
+        fpath = prefix + '.{}.json'.format(key)
+
+        _put_obj(fpath, value)
 
     def get_item_metadata(self, handle):
         """Return dictionary containing all metadata associated with handle.
@@ -382,7 +389,21 @@ class IrodsStorageBroker(object):
                        frozen
         :returns: dictionary containing item metadata
         """
-        return {}
+        if not _path_exists(self._metadata_fragments_abspath):
+            return {}
+
+        prefix = self._handle_to_fragment_absprefixpath(handle)
+
+        files = [f for f in _ls(self._metadata_fragments_abspath)
+                 if f.startswith(prefix)]
+
+        metadata = {}
+        for f in files:
+            key = f.split('.')[-2]  # filename: identifier.key.json
+            value = _get_obj(f)
+            metadata[key] = value
+
+        return metadata
 
     def post_freeze_hook(self):
         """Post :meth:`dtoolcore.ProtoDataSet.freeze` cleanup actions.
