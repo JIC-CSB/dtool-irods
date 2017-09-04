@@ -83,6 +83,15 @@ def _cp(fpath, irods_path):
     cmd()
 
 
+def _rm(irods_path):
+    cmd = CommandWrapper(["irm", "-rf", irods_path])
+    cmd()
+
+def _rm_if_exists(irods_path):
+    if _path_exists(irods_path):
+        _rm(irods_path)
+
+
 def _ls(irods_path):
     cmd = CommandWrapper(["ils", irods_path])
     cmd()
@@ -420,8 +429,4 @@ class IrodsStorageBroker(object):
         This method is called at the end of the
         :meth:`dtoolcore.ProtoDataSet.freeze` method.
         """
-        if _path_exists(self._metadata_fragments_abspath):
-            remove_dir = CommandWrapper(
-                ["irm", "-rf", self._metadata_fragments_abspath]
-            )
-            remove_dir()
+        _rm_if_exists(self._metadata_fragments_abspath)
