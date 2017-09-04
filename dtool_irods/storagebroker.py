@@ -76,8 +76,15 @@ def _mkdir_if_missing(irods_path):
     if not _path_exists(irods_path):
         _mkdir(irods_path)
 
+def _cp(fpath, irods_path):
+    cmd = CommandWrapper(["iput", "-f", fpath, irods_path])
+    cmd()
 
-def _get_metadata_value(irods_path, key):
+def _put_metadata(irods_path, key, value):
+    cmd = CommandWrapper(["imeta", "add", "-d", irods_path, key, value])
+    cmd()
+
+def _get_metadata(irods_path, key):
     cmd = CommandWrapper(["imeta", "ls", "-d", irods_path, key])
     cmd()
     text = cmd.stdout
@@ -206,7 +213,7 @@ class IrodsStorageBroker(object):
 
         # Get the relpath from the handle metadata.
         irods_item_path = os.path.join(self._data_abspath, identifier)
-        relpath = _get_metadata_value(irods_item_path, "handle")
+        relpath = _get_metadata(irods_item_path, "handle")
         item_abspath = os.path.join(dataset_cache_abspath, relpath)
         mkdir_parents(item_abspath)
 
@@ -282,22 +289,13 @@ class IrodsStorageBroker(object):
         :param relpath: relative path name given to the item in the dataset as
                         a handle
         """
+        # Put the file into iRODS.
         fname = generate_identifier(relpath)
         dest_path = os.path.join(self._data_abspath, fname)
+        _cp(fpath, dest_path)
 
-        # Put the file into iRODS.
-        copy_file = CommandWrapper(["iput", "-f", fpath, dest_path])
-        copy_file()
-
-        # Add the realpath handle as metadata.
-        add_relpath_metadata = CommandWrapper([
-            "imeta",
-            "add",
-            "-d",
-            dest_path,
-            "handle",
-            relpath])
-        add_relpath_metadata()
+        # Add the relpath handle as metadata.
+        _put_metadata(dest_path, "handle", relpath)
 
     def iter_item_handles(self):
         """Return iterator over item handles."""
@@ -352,7 +350,7 @@ class IrodsStorageBroker(object):
         )
 
         # Get the relpath from the handle metadata.
-        relpath = _get_metadata_value(irods_item_path, "handle")
+        relpath = _get_metadata(irods_item_path, "handle")
 
         properties = {
             'size_in_bytes': size,
