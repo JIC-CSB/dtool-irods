@@ -371,7 +371,7 @@ class IrodsStorageBroker(object):
         relpath = _get_metadata(irods_item_path, "handle")
 
         properties = {
-            'size_in_bytes': size,
+            'size_in_bytes': int(size),
             'utc_timestamp': timestamp,
             'hash': checksum_as_hex,
             'relpath': relpath
