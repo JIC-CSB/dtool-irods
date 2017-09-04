@@ -9,7 +9,6 @@ import datetime
 
 from dtoolcore.utils import (
     generate_identifier,
-    mkdir_parents,
     base64_to_hex,
 )
 from dtoolcore.filehasher import FileHasher, sha256sum_hexdigest
@@ -23,6 +22,11 @@ logger = logging.getLogger(__name__)
 #############################################################################
 # iRODS helper functions.
 #############################################################################
+
+def _get_file(irods_path, local_abspath):
+    cmd = CommandWrapper(["iget", irods_path, local_abspath])
+    cmd()
+
 
 def _get_text(irods_path):
     """Get raw text from iRODS."""
@@ -257,26 +261,27 @@ class IrodsStorageBroker(object):
         :param identifier: item identifier
         :returns: absolute path from which the item content can be accessed
         """
+        admin_metadata = self.get_admin_metadata()
+        uuid = admin_metadata["uuid"]
         # Create directory for the specific dataset.
         dataset_cache_abspath = os.path.join(
-            self._irods_cache_abspath, self.uuid)
+            self._irods_cache_abspath, uuid)
         if not os.path.isdir(dataset_cache_abspath):
             os.mkdir(dataset_cache_abspath)
 
-        # Get the relpath from the handle metadata.
+        # Get the file extension from the  relpath from the handle metadata.
         irods_item_path = os.path.join(self._data_abspath, identifier)
         relpath = _get_metadata(irods_item_path, "handle")
-        item_abspath = os.path.join(dataset_cache_abspath, relpath)
-        mkdir_parents(item_abspath)
+        _, ext = os.path.splitext(relpath)
 
-        fetch_file_from_irods = CommandWrapper([
-            "iget",
-            irods_item_path,
-            item_abspath
-        ])
-        fetch_file_from_irods()
+        local_item_abspath = os.path.join(
+            dataset_cache_abspath,
+            identifier + ext)
 
-        return item_abspath
+        if not os.path.isfile(local_item_abspath):
+            _get_file(irods_item_path, local_item_abspath)
+
+        return local_item_abspath
 
 
 #############################################################################
