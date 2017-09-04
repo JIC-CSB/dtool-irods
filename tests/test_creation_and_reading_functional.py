@@ -187,7 +187,7 @@ def test_creation_and_reading(tmp_uuid_and_uri):  # NOQA
     )
     time_delta = datetime.datetime.now(tz=pytz.UTC) - time_from_item
     assert time_delta.days == 0
-    assert time_delta.seconds < 20
+    assert time_delta.seconds < 100
 
     # Add metadata
     proto_dataset.add_item_metadata(handle, 'foo', 'bar')
