@@ -76,6 +76,15 @@ def _mkdir_if_missing(irods_path):
     if not _path_exists(irods_path):
         _mkdir(irods_path)
 
+
+def _get_metadata_value(irods_path, key):
+    cmd = CommandWrapper(["imeta", "ls", "-d", irods_path, key])
+    cmd()
+    text = cmd.stdout
+    value_line = text.split('\n')[2]
+    value = value_line.split()[1]
+    return value
+
 #############################################################################
 # iRODS storage broker.
 #############################################################################
@@ -195,25 +204,10 @@ class IrodsStorageBroker(object):
         if not os.path.isdir(dataset_cache_abspath):
             os.mkdir(dataset_cache_abspath)
 
-        # Get the relpath handle.
+        # Get the relpath from the handle metadata.
         irods_item_path = os.path.join(self._data_abspath, identifier)
-        get_handle_metadata = CommandWrapper([
-            "imeta",
-            "ls",
-            "-d",
-            irods_item_path,
-            "handle"
-        ])
-        get_handle_metadata()
-
-        def get_value_from_meta(irods_meta_output):
-            value_line = irods_meta_output.split('\n')[2]
-            return value_line.split()[1]
-
-        handle = get_value_from_meta(
-            get_value_from_meta(get_handle_metadata.stdout))
-
-        item_abspath = os.path.join(dataset_cache_abspath, handle)
+        relpath = _get_metadata_value(irods_item_path, "handle")
+        item_abspath = os.path.join(dataset_cache_abspath, relpath)
         mkdir_parents(item_abspath)
 
         fetch_file_from_irods = CommandWrapper([
@@ -357,20 +351,8 @@ class IrodsStorageBroker(object):
             irods_ls_cmd.stdout
         )
 
-        # Get the relpath handle.
-        get_handle_metadata = CommandWrapper([
-            "imeta",
-            "ls",
-            "-d",
-            irods_item_path,
-            "handle"
-        ])
-        get_handle_metadata()
-
-        def get_value_from_meta(irods_meta_output):
-            value_line = irods_meta_output.split('\n')[2]
-            return value_line.split()[1]
-        relpath = get_value_from_meta(get_handle_metadata.stdout)
+        # Get the relpath from the handle metadata.
+        relpath = _get_metadata_value(irods_item_path, "handle")
 
         properties = {
             'size_in_bytes': size,
