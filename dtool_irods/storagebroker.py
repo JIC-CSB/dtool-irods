@@ -10,8 +10,9 @@ import datetime
 from dtoolcore.utils import (
     generate_identifier,
     mkdir_parents,
+    base64_to_hex,
 )
-from dtoolcore.filehasher import FileHasher, md5sum
+from dtoolcore.filehasher import FileHasher, sha256sum_hexdigest
 from dtoolcore.storagebroker import StorageBrokerOSError
 
 from dtool_irods import CommandWrapper
@@ -149,7 +150,7 @@ class IrodsStorageBroker(object):
 
     #: Attribute used by :class:`dtoolcore.ProtoDataSet` to write the hash
     #: function name to the manifest.
-    hasher = FileHasher(md5sum)
+    hasher = FileHasher(sha256sum_hexdigest)
 
     def __init__(self, uri, config=None):
 
@@ -352,6 +353,7 @@ class IrodsStorageBroker(object):
 
         # Get the hash.
         checksum = _get_checksum(irods_item_path)
+        checksum_as_hex = base64_to_hex(checksum)
 
         # Get the UTC timestamp and the size in bytes.
         size, timestamp = _get_size_and_timestamp(irods_item_path)
@@ -362,7 +364,7 @@ class IrodsStorageBroker(object):
         properties = {
             'size_in_bytes': size,
             'utc_timestamp': timestamp,
-            'hash': checksum,
+            'hash': checksum_as_hex,
             'relpath': relpath
         }
         return properties
