@@ -76,9 +76,11 @@ def _mkdir_if_missing(irods_path):
     if not _path_exists(irods_path):
         _mkdir(irods_path)
 
+
 def _cp(fpath, irods_path):
     cmd = CommandWrapper(["iput", "-f", fpath, irods_path])
     cmd()
+
 
 def _ls(irods_path):
     cmd = CommandWrapper(["ils", irods_path])
@@ -89,9 +91,11 @@ def _ls(irods_path):
     cleaned_relevant_lines = [l.strip() for l in relevant_lines]
     return cleaned_relevant_lines
 
+
 def _put_metadata(irods_path, key, value):
     cmd = CommandWrapper(["imeta", "add", "-d", irods_path, key, value])
     cmd()
+
 
 def _get_metadata(irods_path, key):
     cmd = CommandWrapper(["imeta", "ls", "-d", irods_path, key])
