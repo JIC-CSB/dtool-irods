@@ -92,6 +92,11 @@ def _ls(irods_path):
     return cleaned_relevant_lines
 
 
+def _ls_abspaths(irods_path):
+    for f in _ls(irods_path):
+        yield os.path.join(irods_path, f)
+
+
 def _put_metadata(irods_path, key, value):
     cmd = CommandWrapper(["imeta", "add", "-d", irods_path, key, value])
     cmd()
@@ -336,12 +341,14 @@ class IrodsStorageBroker(object):
 
     def iter_item_handles(self):
         """Return iterator over item handles."""
-        for line in _ls(self._data_abspath):
-            yield line
+        for abspath in _ls_abspaths(self._data_abspath):
+            relpath = _get_metadata(abspath, "handle")
+            yield relpath
 
     def item_properties(self, handle):
         """Return properties of the item with the given handle."""
-        irods_item_path = os.path.join(self._data_abspath, handle)
+        fname = generate_identifier(handle)
+        irods_item_path = os.path.join(self._data_abspath, fname)
 
         # Get the hash.
         checksum = _get_checksum(irods_item_path)
@@ -394,7 +401,7 @@ class IrodsStorageBroker(object):
 
         prefix = self._handle_to_fragment_absprefixpath(handle)
 
-        files = [f for f in _ls(self._metadata_fragments_abspath)
+        files = [f for f in _ls_abspaths(self._metadata_fragments_abspath)
                  if f.startswith(prefix)]
 
         metadata = {}
