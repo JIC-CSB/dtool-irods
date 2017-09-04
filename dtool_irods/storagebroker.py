@@ -105,6 +105,30 @@ def _get_metadata(irods_path, key):
     value = value_line.split()[1]
     return value
 
+
+def _get_checksum(irods_path):
+    # Get the hash.
+    cmd = CommandWrapper(["ichksum", irods_path])
+    cmd()
+    line = cmd.stdout.strip()
+    info = line.split()
+    compound_chksum = info[1]
+    alg, checksum = compound_chksum.split(":")
+    return checksum
+
+
+def _get_size_and_timestamp(irods_path):
+    cmd = CommandWrapper(["ils", "-l", irods_path])
+    cmd()
+    text = cmd.stdout.strip()
+    first_line = text.split("\n")[0].strip()
+    info = first_line.split()
+    size_in_bytes = info[3]
+    time_str = info[4]
+    dt = datetime.datetime.strptime(time_str, "%Y-%m-%d.%H:%M")
+    utc_timestamp = int(time.mktime(dt.timetuple()))
+    return size_in_bytes, utc_timestamp
+
 #############################################################################
 # iRODS storage broker.
 #############################################################################
@@ -317,43 +341,13 @@ class IrodsStorageBroker(object):
 
     def item_properties(self, handle):
         """Return properties of the item with the given handle."""
-        logging.debug("handle: {}".format(handle))
         irods_item_path = os.path.join(self._data_abspath, handle)
 
         # Get the hash.
-        irods_checksum_cmd = CommandWrapper([
-            "ichksum",
-            irods_item_path
-        ])
-        irods_checksum_cmd()
-
-        def get_checksum_from_stdout(stdout):
-            line = stdout.strip()
-            info = line.split()
-            compound_chksum = info[1]
-            alg, checksum = compound_chksum.split(":")
-            return checksum
-        checksum = get_checksum_from_stdout(irods_checksum_cmd.stdout)
+        checksum = _get_checksum(irods_item_path)
 
         # Get the UTC timestamp and the size in bytes.
-        irods_ls_cmd = CommandWrapper([
-            "ils",
-            "-l",
-            irods_item_path
-        ])
-        irods_ls_cmd()
-
-        def get_size_and_timestamp_from_stdout(stdout):
-            first_line = stdout.split("\n")[0].strip()
-            info = first_line.split()
-            size_in_bytes = info[3]
-            time_str = info[4]
-            dt = datetime.datetime.strptime(time_str, "%Y-%m-%d.%H:%M")
-            utc_timestamp = int(time.mktime(dt.timetuple()))
-            return size_in_bytes, utc_timestamp
-        size, timestamp = get_size_and_timestamp_from_stdout(
-            irods_ls_cmd.stdout
-        )
+        size, timestamp = _get_size_and_timestamp(irods_item_path)
 
         # Get the relpath from the handle metadata.
         relpath = _get_metadata(irods_item_path, "handle")
