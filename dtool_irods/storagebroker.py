@@ -142,9 +142,7 @@ class IrodsStorageBroker(object):
 
         This is the definition of being a "dataset".
         """
-        cmd = CommandWrapper(["ils", self._admin_metadata_fpath])
-        cmd(exit_on_failure=False)
-        return cmd.success()
+        return _path_exists(self._admin_metadata_fpath)
 
     def get_readme_content(self):
         """Return content of the README file as a string.
