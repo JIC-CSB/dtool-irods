@@ -19,6 +19,10 @@ from dtool_irods import CommandWrapper
 logger = logging.getLogger(__name__)
 
 
+#############################################################################
+# iRODS helper functions.
+#############################################################################
+
 def _get_text(irods_path):
     """Get raw text from iRODS."""
     # Command to get contents of file to stdout.
@@ -55,6 +59,16 @@ def _put_obj(irods_path, obj):
     """Put python object into iRODS as JSON text."""
     text = json.dumps(obj)
     _put_text(irods_path, text)
+
+
+def _path_exists(irods_path):
+    cmd = CommandWrapper(["ils", irods_path])
+    cmd(exit_on_failure=False)
+    return cmd.success()
+
+#############################################################################
+# iRODS storage broker.
+#############################################################################
 
 
 class IrodsStorageBroker(object):
@@ -95,7 +109,6 @@ class IrodsStorageBroker(object):
         self._irods_cache_abspath = os.path.abspath("/tmp/dtool_irods_cache")
         if not os.path.isdir(self._irods_cache_abspath):
             os.mkdir(self._irods_cache_abspath)
-
 
     @classmethod
     def generate_uri(cls, name, uuid, prefix):
@@ -169,7 +182,8 @@ class IrodsStorageBroker(object):
         :returns: absolute path from which the item content can be accessed
         """
         # Create directory for the specific dataset.
-        dataset_cache_abspath = os.path.join(self._irods_cache_abspath, self.uuid)
+        dataset_cache_abspath = os.path.join(
+            self._irods_cache_abspath, self.uuid)
         if not os.path.isdir(dataset_cache_abspath):
             os.mkdir(dataset_cache_abspath)
 
@@ -182,11 +196,14 @@ class IrodsStorageBroker(object):
             irods_item_path,
             "handle"
         ])
+        get_handle_metadata()
+
         def get_value_from_meta(irods_meta_output):
-            value_line = r.split('\n')[2]
+            value_line = irods_meta_output.split('\n')[2]
             return value_line.split()[1]
-        get_value_from_meta()
-        handle = get_value_from_meta(get_value_from_meta.stdout)
+
+        handle = get_value_from_meta(
+            get_value_from_meta(get_handle_metadata.stdout))
 
         item_abspath = os.path.join(dataset_cache_abspath, handle)
         mkdir_parents(item_abspath)
@@ -201,7 +218,6 @@ class IrodsStorageBroker(object):
         return item_abspath
 
 
-
 #############################################################################
 # Methods only used by ProtoDataSet.
 #############################################################################
@@ -210,9 +226,7 @@ class IrodsStorageBroker(object):
         """Create necessary structure to hold a dataset."""
 
         # Ensure that the specified path does not exist and create it.
-        path_exists = CommandWrapper(["ils", self._abspath])
-        path_exists(exit_on_failure=False)
-        if path_exists.success():
+        if _path_exists(self._abspath):
             raise(StorageBrokerOSError(
                 "Path already exists: {}".format(self._abspath)
             ))
@@ -226,9 +240,7 @@ class IrodsStorageBroker(object):
             self._overlays_abspath
         ]
         for abspath in essential_subdirectories:
-            path_exists = CommandWrapper(["ils", abspath])
-            path_exists(exit_on_failure=False)
-            if not path_exists.success():
+            if not _path_exists(abspath):
                 create_path = CommandWrapper(["imkdir", abspath])
                 create_path()
 
@@ -311,6 +323,7 @@ class IrodsStorageBroker(object):
             irods_item_path
         ])
         irods_checksum_cmd()
+
         def get_checksum_from_stdout(stdout):
             line = stdout.strip()
             info = line.split()
@@ -326,6 +339,7 @@ class IrodsStorageBroker(object):
             irods_item_path
         ])
         irods_ls_cmd()
+
         def get_size_and_timestamp_from_stdout(stdout):
             first_line = stdout.split("\n")[0].strip()
             info = first_line.split()
@@ -334,7 +348,9 @@ class IrodsStorageBroker(object):
             dt = datetime.datetime.strptime(time_str, "%Y-%m-%d.%H:%M")
             utc_timestamp = int(time.mktime(dt.timetuple()))
             return size_in_bytes, utc_timestamp
-        size, timestamp = get_size_and_timestamp_from_stdout(irods_ls_cmd.stdout)
+        size, timestamp = get_size_and_timestamp_from_stdout(
+            irods_ls_cmd.stdout
+        )
 
         # Get the relpath handle.
         get_handle_metadata = CommandWrapper([
@@ -345,6 +361,7 @@ class IrodsStorageBroker(object):
             "handle"
         ])
         get_handle_metadata()
+
         def get_value_from_meta(irods_meta_output):
             value_line = irods_meta_output.split('\n')[2]
             return value_line.split()[1]
@@ -357,7 +374,6 @@ class IrodsStorageBroker(object):
             'relpath': relpath
         }
         return properties
-
 
     def _handle_to_fragment_absprefixpath(self, handle):
         return generate_identifier(handle)
@@ -389,9 +405,7 @@ class IrodsStorageBroker(object):
         This method is called at the end of the
         :meth:`dtoolcore.ProtoDataSet.freeze` method.
         """
-        path_exists = CommandWrapper(["ils", self._metadata_fragments_abspath])
-        path_exists(exit_on_failure=False)
-        if path_exists.success():
+        if _path_exists(self._metadata_fragments_abspath):
             remove_dir = CommandWrapper(
                 ["irm", "-rf", self._metadata_fragments_abspath]
             )
