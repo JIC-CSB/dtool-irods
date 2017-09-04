@@ -6,6 +6,8 @@ import datetime
 import pytz
 import pytest
 
+from dtoolcore.filehasher import sha256sum_hexdigest
+
 from . import tmp_uuid_and_uri  # NOQA
 from . import TEST_SAMPLE_DATA
 
@@ -111,10 +113,13 @@ def test_proto_dataset_freeze_functional(tmp_uuid_and_uri):  # NOQA
 
     # Test item
     expected_identifier = generate_identifier('tiny.png')
+    expected_hash = sha256sum_hexdigest(
+        os.path.join(sample_data_path, 'tiny.png')
+    )
     item_properties = dataset.item_properties(expected_identifier)
     assert item_properties['relpath'] == 'tiny.png'
     assert item_properties['size_in_bytes'] == 276
-    assert item_properties['hash'] == 'dc73192d2f81d7009ce5a1ee7bad5755'
+    assert item_properties['hash'] == expected_hash
 
     # Test accessing item
     expected_identifier = generate_identifier('another_file.txt')
@@ -168,10 +173,13 @@ def test_creation_and_reading(tmp_uuid_and_uri):  # NOQA
     assert handle in list(proto_dataset._storage_broker.iter_item_handles())
 
     # Test properties of that file
+    expected_hash = sha256sum_hexdigest(
+        os.path.join(sample_data_path, 'tiny.png')
+    )
     item_properties = proto_dataset._storage_broker.item_properties(handle)
     assert item_properties['relpath'] == 'tiny.png'
     assert item_properties['size_in_bytes'] == 276
-    assert item_properties['hash'] == 'dc73192d2f81d7009ce5a1ee7bad5755'
+    assert item_properties['hash'] == expected_hash
     assert 'utc_timestamp' in item_properties
     time_from_item = datetime.datetime.fromtimestamp(
         float(item_properties['utc_timestamp']),
