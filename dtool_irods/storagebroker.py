@@ -66,6 +66,16 @@ def _path_exists(irods_path):
     cmd(exit_on_failure=False)
     return cmd.success()
 
+
+def _mkdir(irods_path):
+    cmd = CommandWrapper(["imkdir", irods_path])
+    cmd()
+
+
+def _mkdir_if_missing(irods_path):
+    if not _path_exists(irods_path):
+        _mkdir(irods_path)
+
 #############################################################################
 # iRODS storage broker.
 #############################################################################
@@ -230,8 +240,7 @@ class IrodsStorageBroker(object):
             raise(StorageBrokerOSError(
                 "Path already exists: {}".format(self._abspath)
             ))
-        create_path = CommandWrapper(["imkdir", self._abspath])
-        create_path()
+        _mkdir(self._abspath)
 
         # Create more essential subdirectories.
         essential_subdirectories = [
@@ -240,9 +249,7 @@ class IrodsStorageBroker(object):
             self._overlays_abspath
         ]
         for abspath in essential_subdirectories:
-            if not _path_exists(abspath):
-                create_path = CommandWrapper(["imkdir", abspath])
-                create_path()
+            _mkdir_if_missing(abspath)
 
     def put_admin_metadata(self, admin_metadata):
         """Store the admin metadata by writing to iRODS.
