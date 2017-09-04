@@ -80,6 +80,15 @@ def _cp(fpath, irods_path):
     cmd = CommandWrapper(["iput", "-f", fpath, irods_path])
     cmd()
 
+def _ls(irods_path):
+    cmd = CommandWrapper(["ils", irods_path])
+    cmd()
+    text = cmd.stdout.strip()
+    lines = text.split("\n")
+    relevant_lines = lines[1:]
+    cleaned_relevant_lines = [l.strip() for l in relevant_lines]
+    return cleaned_relevant_lines
+
 def _put_metadata(irods_path, key, value):
     cmd = CommandWrapper(["imeta", "add", "-d", irods_path, key, value])
     cmd()
@@ -299,15 +308,8 @@ class IrodsStorageBroker(object):
 
     def iter_item_handles(self):
         """Return iterator over item handles."""
-        list_data = CommandWrapper([
-            "ils",
-            self._data_abspath
-        ])
-        list_data()
-        lines = list_data.stdout.strip()
-        relevant_lines = lines.split("\n")[1:]
-        for line in relevant_lines:
-            yield line.strip()
+        for line in _ls(self._data_abspath):
+            yield line
 
     def item_properties(self, handle):
         """Return properties of the item with the given handle."""
