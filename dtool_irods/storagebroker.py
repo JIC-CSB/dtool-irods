@@ -196,8 +196,6 @@ class IrodsStorageBroker(object):
             config_path=config_path,
             default=os.path.expanduser("~/.cache/dtool/irods")
         )
-        if not os.path.isdir(self._irods_cache_abspath):
-            mkdir_parents(self._irods_cache_abspath)
 
     @classmethod
     def generate_uri(cls, name, uuid, prefix):
