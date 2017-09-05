@@ -10,6 +10,8 @@ import datetime
 from dtoolcore.utils import (
     generate_identifier,
     base64_to_hex,
+    get_config_value,
+    mkdir_parents,
 )
 from dtoolcore.filehasher import FileHasher, sha256sum_hexdigest
 from dtoolcore.storagebroker import StorageBrokerOSError
@@ -166,7 +168,7 @@ class IrodsStorageBroker(object):
     #: function name to the manifest.
     hasher = FileHasher(sha256sum_hexdigest)
 
-    def __init__(self, uri, config=None):
+    def __init__(self, uri, config_path=None):
 
         self._abspath = os.path.abspath(uri)
         self._dtool_abspath = os.path.join(self._abspath, '.dtool')
@@ -189,9 +191,13 @@ class IrodsStorageBroker(object):
             'tmp_fragments'
         )
 
-        self._irods_cache_abspath = os.path.abspath("/tmp/dtool_irods_cache")
+        self._irods_cache_abspath = get_config_value(
+            "DTOOL_IRODS_CACHE_DIRECTORY",
+            config_path=config_path,
+            default=os.path.expanduser("~/.cache/dtool/irods")
+        )
         if not os.path.isdir(self._irods_cache_abspath):
-            os.mkdir(self._irods_cache_abspath)
+            mkdir_parents(self._irods_cache_abspath)
 
     @classmethod
     def generate_uri(cls, name, uuid, prefix):
@@ -265,10 +271,8 @@ class IrodsStorageBroker(object):
         admin_metadata = self.get_admin_metadata()
         uuid = admin_metadata["uuid"]
         # Create directory for the specific dataset.
-        dataset_cache_abspath = os.path.join(
-            self._irods_cache_abspath, uuid)
-        if not os.path.isdir(dataset_cache_abspath):
-            os.mkdir(dataset_cache_abspath)
+        dataset_cache_abspath = os.path.join(self._irods_cache_abspath, uuid)
+        mkdir_parents(dataset_cache_abspath)
 
         # Get the file extension from the  relpath from the handle metadata.
         irods_item_path = os.path.join(self._data_abspath, identifier)

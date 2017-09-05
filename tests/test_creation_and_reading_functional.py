@@ -31,7 +31,7 @@ def test_basic_workflow(tmp_uuid_and_uri):  # NOQA
     proto_dataset = ProtoDataSet(
         uri=dest_uri,
         admin_metadata=admin_metadata,
-        config=None)
+        config_path=None)
     proto_dataset.create()
     proto_dataset.put_item(local_file_path, 'tiny.png')
     proto_dataset.freeze()
@@ -65,7 +65,7 @@ def test_proto_dataset_freeze_functional(tmp_uuid_and_uri):  # NOQA
     proto_dataset = ProtoDataSet(
         uri=dest_uri,
         admin_metadata=admin_metadata,
-        config=None
+        config_path=None
     )
     proto_dataset.create()
 
@@ -151,7 +151,7 @@ def test_creation_and_reading(tmp_uuid_and_uri):  # NOQA
     proto_dataset = ProtoDataSet(
         uri=dest_uri,
         admin_metadata=admin_metadata,
-        config=None)
+        config_path=None)
     proto_dataset.create()
     proto_dataset.put_readme("")
 
