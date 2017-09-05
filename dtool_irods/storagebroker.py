@@ -91,6 +91,7 @@ def _rm(irods_path):
     cmd = CommandWrapper(["irm", "-rf", irods_path])
     cmd()
 
+
 def _rm_if_exists(irods_path):
     if _path_exists(irods_path):
         _rm(irods_path)
