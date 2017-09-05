@@ -53,10 +53,10 @@ def local_tmp_dir_fixture(request):
 
 @pytest.fixture
 def tmp_uuid_and_uri(request):
-    admin_metadata = generate_admin_metadata("my_ds")
+    admin_metadata = generate_admin_metadata("test_dataset")
     uuid = admin_metadata["uuid"]
 
-    uri = IrodsStorageBroker.generate_uri("my_ds", uuid, TEST_ZONE)
+    uri = IrodsStorageBroker.generate_uri("test_dataset", uuid, TEST_ZONE)
 
     @request.addfinalizer
     def teardown():
