@@ -251,6 +251,14 @@ class IrodsStorageBroker(object):
         """
         return _get_obj(self._manifest_abspath)
 
+    def list_overlay_names(self):
+        """Return list of overlay names."""
+        overlay_names = []
+        for fname in _ls(self._overlays_abspath):
+            name, ext = os.path.splitext(fname)
+            overlay_names.append(name)
+        return overlay_names
+
     def get_overlay(self, overlay_name):
         """Return overlay as a dictionary.
 

@@ -31,6 +31,15 @@ Security
 ^^^^^^^^
 
 
+[0.2.0] - 2017-09-13
+--------------------
+
+Added
+^^^^^
+
+- ``dtool_irods.storagebroker.IrodsStorageBroker.list_overlay_names``
+
+
 [0.1.0] 2017-09-05
 ------------------
 
