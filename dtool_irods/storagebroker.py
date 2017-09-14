@@ -12,6 +12,7 @@ from dtoolcore.utils import (
     base64_to_hex,
     get_config_value,
     mkdir_parents,
+    getuser
 )
 from dtoolcore.filehasher import FileHasher, sha256sum_hexdigest
 from dtoolcore.storagebroker import StorageBrokerOSError
@@ -19,6 +20,8 @@ from dtoolcore.storagebroker import StorageBrokerOSError
 from dtool_irods import CommandWrapper
 
 logger = logging.getLogger(__name__)
+
+__irods_auth_zone_suffix_ = "#nbi"
 
 
 #############################################################################
@@ -97,6 +100,20 @@ def _rm(irods_path):
 def _rm_if_exists(irods_path):
     if _path_exists(irods_path):
         _rm(irods_path)
+
+
+def _set_owner_permission(irods_path):
+    irods_username = "{}{}".format(
+        getuser(),
+        __irods_auth_zone_suffix_
+    )
+    cmd = CommandWrapper(["ichmod", "-r", "own", irods_username, irods_path])
+    cmd()
+
+
+def _set_owner_permission_if_exists(irods_path):
+    if _path_exists(irods_path):
+        _set_owner_permission(irods_path)
 
 
 def _ls(irods_path):

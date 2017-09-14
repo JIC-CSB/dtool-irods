@@ -9,6 +9,7 @@ import pytest
 from dtoolcore import generate_admin_metadata
 from dtool_irods.storagebroker import (
     _rm_if_exists,
+    _set_owner_permission_if_exists,
     IrodsStorageBroker,
 )
 
@@ -61,6 +62,7 @@ def tmp_uuid_and_uri(request):
     @request.addfinalizer
     def teardown():
         _, irods_path = uri.split(":", 1)
+        _set_owner_permission_if_exists(irods_path)
         _rm_if_exists(irods_path)
 
     return (uuid, uri)
