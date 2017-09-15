@@ -102,11 +102,17 @@ def _rm_if_exists(irods_path):
 def _ls(irods_path):
     cmd = CommandWrapper(["ils", irods_path])
     cmd()
+
+    def remove_header_line(lines):
+        return lines[1:]
+
+    def remove_redundant_whitespace(lines):
+        return [l.strip() for l in lines]
+
     text = cmd.stdout.strip()
     lines = text.split("\n")
-    relevant_lines = lines[1:]
-    cleaned_relevant_lines = [l.strip() for l in relevant_lines]
-    return cleaned_relevant_lines
+    return remove_redundant_whitespace(
+                remove_header_line(lines))
 
 
 def _ls_abspaths(irods_path):
