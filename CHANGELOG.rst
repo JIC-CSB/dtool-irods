@@ -33,6 +33,15 @@ Security
 ^^^^^^^^
 
 
+[0.3.0] - 2017-09-15
+--------------------
+
+Added
+^^^^^
+
+- ``dtool_irods.storagebroker.IrodsStorageBroker.list_dataset_uris`` class method
+
+
 [0.2.0] - 2017-09-13
 --------------------
 
