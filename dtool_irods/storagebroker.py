@@ -121,8 +121,10 @@ def _ls(irods_path):
     text = cmd.stdout.strip()
     lines = text.split("\n")
     return deal_with_collections(
-                remove_redundant_whitespace(
-                    remove_header_line(lines)))
+        remove_redundant_whitespace(
+            remove_header_line(lines)
+        )
+    )
 
 
 def _ls_abspaths(irods_path):
@@ -232,7 +234,6 @@ class IrodsStorageBroker(object):
             uri_list.append("{}://{}".format(cls.key, dir_path))
 
         return uri_list
-
 
     @classmethod
     def generate_uri(cls, name, uuid, prefix):

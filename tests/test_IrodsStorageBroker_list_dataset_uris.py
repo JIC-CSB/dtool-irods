@@ -1,6 +1,7 @@
 """Test the IrodsStorageBroker.list_dataset_uris class method."""
 
-from . import tmp_irods_collection_fixture
+from . import tmp_irods_collection_fixture  # NOQA
+
 
 def test_list_dataset_uris(tmp_irods_collection_fixture):  # NOQA
 
