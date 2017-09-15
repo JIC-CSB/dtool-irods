@@ -214,6 +214,27 @@ class IrodsStorageBroker(object):
         )
 
     @classmethod
+    def list_dataset_uris(cls, prefix, config_path):
+        """Return list containing URIs in prefix location."""
+        uri_list = []
+
+        logger.info("prefix: '{}'".format(prefix))
+
+        for dir_path in _ls_abspaths(prefix):
+
+            logger.info("dir path: '{}'".format(dir_path))
+
+            storage_broker = cls(dir_path, config_path)
+
+            if not storage_broker.has_admin_metadata():
+                continue
+
+            uri_list.append("{}://{}".format(cls.key, dir_path))
+
+        return uri_list
+
+
+    @classmethod
     def generate_uri(cls, name, uuid, prefix):
         dataset_path = os.path.join(prefix, uuid)
         dataset_abspath = os.path.abspath(dataset_path)
