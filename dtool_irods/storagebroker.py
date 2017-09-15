@@ -109,10 +109,20 @@ def _ls(irods_path):
     def remove_redundant_whitespace(lines):
         return [l.strip() for l in lines]
 
+    def deal_with_collections(lines):
+        fixed_lines = []
+        for l in lines:
+            if l.startswith("C"):
+                _, path = l.split()
+                l = os.path.basename(path)
+            fixed_lines.append(l)
+        return fixed_lines
+
     text = cmd.stdout.strip()
     lines = text.split("\n")
-    return remove_redundant_whitespace(
-                remove_header_line(lines))
+    return deal_with_collections(
+                remove_redundant_whitespace(
+                    remove_header_line(lines)))
 
 
 def _ls_abspaths(irods_path):
