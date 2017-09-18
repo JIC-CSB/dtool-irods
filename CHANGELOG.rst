@@ -10,7 +10,9 @@ This change log uses principles from `keep a changelog <http://keepachangelog.co
 Added
 ^^^^^
 
-- ``dtool_irods.storagebroker.IrodsStorageBroker.list_dataset_uris`` class method
+- Ensure ``dtool verify`` will work as expected by forcing iRODS to
+  re-calculate the file hash when asking for it, which ensures that a cached
+  copy is not used.
 
 
 Changed

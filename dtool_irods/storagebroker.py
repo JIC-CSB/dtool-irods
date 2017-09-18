@@ -148,7 +148,7 @@ def _get_metadata(irods_path, key):
 
 def _get_checksum(irods_path):
     # Get the hash.
-    cmd = CommandWrapper(["ichksum", irods_path])
+    cmd = CommandWrapper(["ichksum", "-K", irods_path])
     cmd()
     line = cmd.stdout.strip()
     info = line.split()
