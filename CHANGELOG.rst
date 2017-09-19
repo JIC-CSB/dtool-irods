@@ -10,10 +10,6 @@ This change log uses principles from `keep a changelog <http://keepachangelog.co
 Added
 ^^^^^
 
-- Ensure ``dtool verify`` will work as expected by forcing iRODS to
-  re-calculate the file hash when asking for it, which ensures that a cached
-  copy is not used.
-
 
 Changed
 ^^^^^^^
@@ -33,6 +29,17 @@ Fixed
 
 Security
 ^^^^^^^^
+
+
+[0.3.1] - 2017-09-19
+--------------------
+
+Added
+^^^^^
+
+- Ensure ``dtool verify`` will work as expected by forcing iRODS to
+  re-calculate the file hash when asking for it, which ensures that a cached
+  copy is not used.
 
 
 [0.3.0] - 2017-09-15
