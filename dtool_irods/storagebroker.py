@@ -133,7 +133,7 @@ def _ls_abspaths(irods_path):
 
 
 def _put_metadata(irods_path, key, value):
-    cmd = CommandWrapper(["imeta", "add", "-d", irods_path, key, value])
+    cmd = CommandWrapper(["imeta", "set", "-d", irods_path, key, value])
     cmd()
 
 

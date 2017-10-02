@@ -224,3 +224,28 @@ def test_creation_and_reading(tmp_uuid_and_uri):  # NOQA
     expected_hash = sha256sum_hexdigest(local_file_path)
     assert generated_manifest['items'][expected_identifier]['hash'] \
         == expected_hash
+
+
+def test_defect_imeta_fails_if_key_already_exists_regression(tmp_uuid_and_uri):  # NOQA
+
+    uuid, dest_uri = tmp_uuid_and_uri
+
+    from dtoolcore import ProtoDataSet, generate_admin_metadata
+
+    name = "my_dataset"
+    admin_metadata = generate_admin_metadata(name)
+    admin_metadata["uuid"] = uuid
+
+    sample_data_path = os.path.join(TEST_SAMPLE_DATA)
+    local_file_path = os.path.join(sample_data_path, 'tiny.png')
+
+    # Create a minimal dataset
+    proto_dataset = ProtoDataSet(
+        uri=dest_uri,
+        admin_metadata=admin_metadata,
+        config_path=None)
+    proto_dataset.create()
+    proto_dataset.put_item(local_file_path, 'tiny.png')
+
+    # When using ``imeta add`` the below raises SystemExit.
+    proto_dataset.put_item(local_file_path, 'tiny.png')
