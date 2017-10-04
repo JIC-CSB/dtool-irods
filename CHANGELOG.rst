@@ -26,12 +26,19 @@ Removed
 Fixed
 ^^^^^
 
-- Fix defect where ``IrodsStorageBroker.put_item`` raised SystemError when
-  trying to overwrite an existing file
-
 
 Security
 ^^^^^^^^
+
+
+[0.3.2] - 2017-10-04
+--------------------
+
+Fixed
+^^^^^
+
+- Fix defect where ``IrodsStorageBroker.put_item`` raised SystemError when
+  trying to overwrite an existing file
 
 
 [0.3.1] - 2017-09-19
