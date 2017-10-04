@@ -1,8 +1,8 @@
 Add iRODS support to dtool
 ==========================
 
-.. image:: https://badge.fury.io/py/dtoolcore.svg
-   :target: http://badge.fury.io/py/dtoolcore
+.. image:: https://badge.fury.io/py/dtool-irods.svg
+   :target: http://badge.fury.io/py/dtool-irods
    :alt: PyPi package
 
 - GitHub: https://github.com/jic-dtool/dtool-irods
