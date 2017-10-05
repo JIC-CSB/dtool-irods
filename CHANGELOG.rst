@@ -26,11 +26,19 @@ Removed
 Fixed
 ^^^^^
 
-- Fixed defect where files with white space resulted in broken identifiers
-
 
 Security
 ^^^^^^^^
+
+
+[0.3.3] - 2017-10-04
+--------------------
+
+Fixed
+^^^^^
+
+- Fixed defect in iRODS storage broker where files with white space resulted in
+  broken identifiers
 
 
 [0.3.2] - 2017-10-04
