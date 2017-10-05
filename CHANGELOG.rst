@@ -26,6 +26,8 @@ Removed
 Fixed
 ^^^^^
 
+- Fixed defect where files with white space resulted in broken identifiers
+
 
 Security
 ^^^^^^^^

@@ -142,7 +142,8 @@ def _get_metadata(irods_path, key):
     cmd()
     text = cmd.stdout
     value_line = text.split('\n')[2]
-    value = value_line.split()[1]
+    value = value_line.split(":")[1]
+    value = value.strip()
     return value
 
 
