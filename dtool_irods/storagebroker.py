@@ -404,6 +404,8 @@ class IrodsStorageBroker(object):
         # Add the relpath handle as metadata.
         _put_metadata(dest_path, "handle", relpath)
 
+        return relpath
+
     def iter_item_handles(self):
         """Return iterator over item handles."""
         for abspath in _ls_abspaths(self._data_abspath):
