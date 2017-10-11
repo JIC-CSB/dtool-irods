@@ -26,6 +26,7 @@ Removed
 Fixed
 ^^^^^
 
+storagebroker's ``put_item`` method now returns relpath
 
 Security
 ^^^^^^^^
