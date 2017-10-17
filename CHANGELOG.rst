@@ -14,6 +14,8 @@ Added
 Changed
 ^^^^^^^
 
+- Added metadata cache to reduce time consuming calls to iRODS
+
 
 Deprecated
 ^^^^^^^^^^
