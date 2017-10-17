@@ -126,43 +126,15 @@ def _ls(irods_path):
         )
     )
 
-_use_ls_abspath_cache = False
-_ls_abspath_cache = {}
 
 def _ls_abspaths(irods_path):
-    if _use_ls_abspath_cache and irods_path in _ls_abspath_cache:
-        return _ls_abspath_cache[irods_path]
-
-    abspaths = []
     for f in _ls(irods_path):
-        abspaths.append(os.path.join(irods_path, f))
-
-    if _use_ls_abspath_cache:
-        _ls_abspath_cache[irods_path] = abspaths
-
-    return abspaths
+        yield os.path.join(irods_path, f)
 
 
 def _put_metadata(irods_path, key, value):
     cmd = CommandWrapper(["imeta", "set", "-d", irods_path, key, value])
     cmd()
-
-
-_metadata_cache = {}
-
-
-def _get_metadata(irods_path, key):
-    if irods_path in _metadata_cache:
-        if key in _metadata_cache[irods_path]:
-            return _metadata_cache[irods_path][key]
-    cmd = CommandWrapper(["imeta", "ls", "-d", irods_path, key])
-    cmd()
-    text = cmd.stdout
-    value_line = text.split('\n')[2]
-    value = value_line.split(":")[1]
-    value = value.strip()
-    _metadata_cache.setdefault(irods_path, {}).update({key: value})
-    return value
 
 
 def _get_checksum(irods_path):
@@ -233,6 +205,40 @@ class IrodsStorageBroker(object):
             config_path=config_path,
             default=os.path.expanduser("~/.cache/dtool/irods")
         )
+
+        # Cache for optimisation
+        self._use_ls_abspath_cache = False
+        self._ls_abspath_cache = {}
+        self._metadata_cache = {}
+
+    def _ls_abspaths_freeze_cache(self, irods_path):
+        if (
+            self._use_ls_abspath_cache
+            and irods_path in self._ls_abspath_cache
+        ):
+            return self._ls_abspath_cache[irods_path]
+
+        abspaths = []
+        for f in _ls(irods_path):
+            abspaths.append(os.path.join(irods_path, f))
+
+        if self._use_ls_abspath_cache:
+            self._ls_abspath_cache[irods_path] = abspaths
+
+        return abspaths
+
+    def _get_metadata(self, irods_path, key):
+        if irods_path in self._metadata_cache:
+            if key in self._metadata_cache[irods_path]:
+                return self._metadata_cache[irods_path][key]
+        cmd = CommandWrapper(["imeta", "ls", "-d", irods_path, key])
+        cmd()
+        text = cmd.stdout
+        value_line = text.split('\n')[2]
+        value = value_line.split(":")[1]
+        value = value.strip()
+        self._metadata_cache.setdefault(irods_path, {}).update({key: value})
+        return value
 
     @classmethod
     def list_dataset_uris(cls, prefix, config_path):
@@ -339,7 +345,7 @@ class IrodsStorageBroker(object):
 
         # Get the file extension from the  relpath from the handle metadata.
         irods_item_path = os.path.join(self._data_abspath, identifier)
-        relpath = _get_metadata(irods_item_path, "handle")
+        relpath = self._get_metadata(irods_item_path, "handle")
         _, ext = os.path.splitext(relpath)
 
         local_item_abspath = os.path.join(
@@ -426,8 +432,8 @@ class IrodsStorageBroker(object):
 
     def iter_item_handles(self):
         """Return iterator over item handles."""
-        for abspath in _ls_abspaths(self._data_abspath):
-            relpath = _get_metadata(abspath, "handle")
+        for abspath in self._ls_abspaths_freeze_cache(self._data_abspath):
+            relpath = self._get_metadata(abspath, "handle")
             yield relpath
 
     def item_properties(self, handle):
@@ -443,7 +449,7 @@ class IrodsStorageBroker(object):
         size, timestamp = _get_size_and_timestamp(irods_item_path)
 
         # Get the relpath from the handle metadata.
-        relpath = _get_metadata(irods_item_path, "handle")
+        relpath = self._get_metadata(irods_item_path, "handle")
 
         properties = {
             'size_in_bytes': int(size),
@@ -487,7 +493,8 @@ class IrodsStorageBroker(object):
 
         prefix = self._handle_to_fragment_absprefixpath(handle)
 
-        files = [f for f in _ls_abspaths(self._metadata_fragments_abspath)
+        files = [f for f in self._ls_abspaths_freeze_cache(
+                 self._metadata_fragments_abspath)
                  if f.startswith(prefix)]
 
         metadata = {}
@@ -507,8 +514,7 @@ class IrodsStorageBroker(object):
         In iRODS it is used to create caches for repetitive and time consuming
         calls to iRODS.
         """
-        global _use_ls_abspath_cache
-        _use_ls_abspath_cache = True
+        self._use_ls_abspath_cache = True
 
     def post_freeze_hook(self):
         """Post :meth:`dtoolcore.ProtoDataSet.freeze` cleanup actions.
@@ -516,7 +522,6 @@ class IrodsStorageBroker(object):
         This method is called at the end of the
         :meth:`dtoolcore.ProtoDataSet.freeze` method.
         """
-        global _use_ls_abspath_cache
-        _use_ls_abspath_cache = False
-        _ls_abspath_cache = {}
+        self._use_ls_abspath_cache = False
+        self._ls_abspath_cache = {}
         _rm_if_exists(self._metadata_fragments_abspath)
