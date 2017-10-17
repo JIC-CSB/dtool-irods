@@ -126,10 +126,21 @@ def _ls(irods_path):
         )
     )
 
+_use_ls_abspath_cache = False
+_ls_abspath_cache = {}
 
 def _ls_abspaths(irods_path):
+    if _use_ls_abspath_cache and irods_path in _ls_abspath_cache:
+        return _ls_abspath_cache[irods_path]
+
+    abspaths = []
     for f in _ls(irods_path):
-        yield os.path.join(irods_path, f)
+        abspaths.append(os.path.join(irods_path, f))
+
+    if _use_ls_abspath_cache:
+        _ls_abspath_cache[irods_path] = abspaths
+
+    return abspaths
 
 
 def _put_metadata(irods_path, key, value):
@@ -487,10 +498,25 @@ class IrodsStorageBroker(object):
 
         return metadata
 
+    def pre_freeze_hook(self):
+        """Pre :meth:`dtoolcore.ProtoDataSet.freeze` actions.
+
+        This method is called at the beginning of the
+        :meth:`dtoolcore.ProtoDataSet.freeze` method.
+
+        In iRODS it is used to create caches for repetitive and time consuming
+        calls to iRODS.
+        """
+        global _use_ls_abspath_cache
+        _use_ls_abspath_cache = True
+
     def post_freeze_hook(self):
         """Post :meth:`dtoolcore.ProtoDataSet.freeze` cleanup actions.
 
         This method is called at the end of the
         :meth:`dtoolcore.ProtoDataSet.freeze` method.
         """
+        global _use_ls_abspath_cache
+        _use_ls_abspath_cache = False
+        _ls_abspath_cache = {}
         _rm_if_exists(self._metadata_fragments_abspath)
