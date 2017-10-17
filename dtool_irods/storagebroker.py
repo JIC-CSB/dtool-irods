@@ -209,6 +209,7 @@ class IrodsStorageBroker(object):
         # Cache for optimisation
         self._use_ls_abspath_cache = False
         self._ls_abspath_cache = {}
+        self._use_metadata_cache = {}
         self._metadata_cache = {}
 
     def _ls_abspaths_freeze_cache(self, irods_path):
@@ -228,16 +229,19 @@ class IrodsStorageBroker(object):
         return abspaths
 
     def _get_metadata(self, irods_path, key):
-        if irods_path in self._metadata_cache:
-            if key in self._metadata_cache[irods_path]:
-                return self._metadata_cache[irods_path][key]
+        if self._use_ls_abspath_cache:
+            if irods_path in self._metadata_cache:
+                if key in self._metadata_cache[irods_path]:
+                    return self._metadata_cache[irods_path][key]
         cmd = CommandWrapper(["imeta", "ls", "-d", irods_path, key])
         cmd()
         text = cmd.stdout
         value_line = text.split('\n')[2]
         value = value_line.split(":")[1]
         value = value.strip()
-        self._metadata_cache.setdefault(irods_path, {}).update({key: value})
+        if self._use_metadata_cache:
+            self._metadata_cache.setdefault(
+                irods_path, {}).update({key: value})
         return value
 
     @classmethod
@@ -515,6 +519,7 @@ class IrodsStorageBroker(object):
         calls to iRODS.
         """
         self._use_ls_abspath_cache = True
+        self._use_metadata_cache = True
 
     def post_freeze_hook(self):
         """Post :meth:`dtoolcore.ProtoDataSet.freeze` cleanup actions.
@@ -523,5 +528,7 @@ class IrodsStorageBroker(object):
         :meth:`dtoolcore.ProtoDataSet.freeze` method.
         """
         self._use_ls_abspath_cache = False
+        self._use_metadata_cache = False
         self._ls_abspath_cache = {}
+        self._metadata_cache = {}
         _rm_if_exists(self._metadata_fragments_abspath)
