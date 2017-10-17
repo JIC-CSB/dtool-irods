@@ -138,6 +138,8 @@ def _put_metadata(irods_path, key, value):
 
 
 _metadata_cache = {}
+
+
 def _get_metadata(irods_path, key):
     if irods_path in _metadata_cache:
         if key in _metadata_cache[irods_path]:
