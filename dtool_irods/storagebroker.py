@@ -148,18 +148,6 @@ def _get_checksum(irods_path):
     return checksum
 
 
-def _get_size_and_timestamp(irods_path):
-    cmd = CommandWrapper(["ils", "-l", irods_path])
-    cmd()
-    text = cmd.stdout.strip()
-    first_line = text.split("\n")[0].strip()
-    info = first_line.split()
-    size_in_bytes = info[3]
-    time_str = info[4]
-    dt = datetime.datetime.strptime(time_str, "%Y-%m-%d.%H:%M")
-    utc_timestamp = int(time.mktime(dt.timetuple()))
-    return size_in_bytes, utc_timestamp
-
 #############################################################################
 # iRODS storage broker.
 #############################################################################
@@ -209,8 +197,12 @@ class IrodsStorageBroker(object):
         # Cache for optimisation
         self._use_ls_abspath_cache = False
         self._ls_abspath_cache = {}
-        self._use_metadata_cache = {}
+        self._use_metadata_cache = False
         self._metadata_cache = {}
+        self._use_size_and_timestamp_cache = False
+        self._size_and_timestamp_cache = {}
+        self._use_metadata_dir_exists_cache = False
+        self._metadata_dir_exists_cache = None
 
     def _ls_abspaths_freeze_cache(self, irods_path):
         if (
@@ -243,6 +235,41 @@ class IrodsStorageBroker(object):
             self._metadata_cache.setdefault(
                 irods_path, {}).update({key: value})
         return value
+
+    def _build_size_and_timestamp_cache(self):
+        cmd = CommandWrapper(["ils", "-l", self._data_abspath])
+        cmd()
+        text = cmd.stdout.strip()
+        for line in text.split("\n")[1:]:
+            line = line.strip()
+            info = line.split()
+            size_in_bytes_str = info[3]
+            size_in_bytes = int(size_in_bytes_str)
+            time_str = info[4]
+            dt = datetime.datetime.strptime(time_str, "%Y-%m-%d.%H:%M")
+            utc_timestamp = int(time.mktime(dt.timetuple()))
+            fname = info[6]
+            fpath = os.path.join(self._data_abspath, fname)
+            self._size_and_timestamp_cache[fpath] = (
+                size_in_bytes,
+                utc_timestamp
+            )
+
+    def _get_size_and_timestamp(self, irods_path):
+        if self._use_size_and_timestamp_cache:
+            return self._size_and_timestamp_cache[irods_path]
+
+        cmd = CommandWrapper(["ils", "-l", irods_path])
+        cmd()
+        text = cmd.stdout.strip()
+        first_line = text.split("\n")[0].strip()
+        info = first_line.split()
+        size_in_bytes_str = info[3]
+        size_in_bytes = int(size_in_bytes_str)
+        time_str = info[4]
+        dt = datetime.datetime.strptime(time_str, "%Y-%m-%d.%H:%M")
+        utc_timestamp = int(time.mktime(dt.timetuple()))
+        return size_in_bytes, utc_timestamp
 
     @classmethod
     def list_dataset_uris(cls, prefix, config_path):
@@ -450,7 +477,7 @@ class IrodsStorageBroker(object):
         checksum_as_hex = base64_to_hex(checksum)
 
         # Get the UTC timestamp and the size in bytes.
-        size, timestamp = _get_size_and_timestamp(irods_item_path)
+        size, timestamp = self._get_size_and_timestamp(irods_item_path)
 
         # Get the relpath from the handle metadata.
         relpath = self._get_metadata(irods_item_path, "handle")
@@ -482,6 +509,14 @@ class IrodsStorageBroker(object):
 
         _put_obj(fpath, value)
 
+    def _metadata_dir_exists(self):
+        if self._use_size_and_timestamp_cache:
+            if self._metadata_dir_exists_cache is None:
+                self._metadata_dir_exists_cache = \
+                    _path_exists(self._metadata_fragments_abspath)
+            return self._metadata_dir_exists_cache
+        return _path_exists(self._metadata_fragments_abspath)
+
     def get_item_metadata(self, handle):
         """Return dictionary containing all metadata associated with handle.
 
@@ -492,7 +527,7 @@ class IrodsStorageBroker(object):
                        frozen
         :returns: dictionary containing item metadata
         """
-        if not _path_exists(self._metadata_fragments_abspath):
+        if not self._metadata_dir_exists():
             return {}
 
         prefix = self._handle_to_fragment_absprefixpath(handle)
@@ -520,6 +555,9 @@ class IrodsStorageBroker(object):
         """
         self._use_ls_abspath_cache = True
         self._use_metadata_cache = True
+        self._use_size_and_timestamp_cache = True
+        self._use_metadata_dir_exists_cache = True
+        self._build_size_and_timestamp_cache()
 
     def post_freeze_hook(self):
         """Post :meth:`dtoolcore.ProtoDataSet.freeze` cleanup actions.
@@ -529,6 +567,9 @@ class IrodsStorageBroker(object):
         """
         self._use_ls_abspath_cache = False
         self._use_metadata_cache = False
+        self._use_size_and_timestamp_cache = False
+        self._use_metadata_dir_exists_cache = False
         self._ls_abspath_cache = {}
         self._metadata_cache = {}
+        self._size_and_timestamp_cache = {}
         _rm_if_exists(self._metadata_fragments_abspath)
