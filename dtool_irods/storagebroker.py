@@ -137,13 +137,18 @@ def _put_metadata(irods_path, key, value):
     cmd()
 
 
+_metadata_cache = {}
 def _get_metadata(irods_path, key):
+    if irods_path in _metadata_cache:
+        if key in _metadata_cache[irods_path]:
+            return _metadata_cache[irods_path][key]
     cmd = CommandWrapper(["imeta", "ls", "-d", irods_path, key])
     cmd()
     text = cmd.stdout
     value_line = text.split('\n')[2]
     value = value_line.split(":")[1]
     value = value.strip()
+    _metadata_cache.setdefault(irods_path, {}).update({key: value})
     return value
 
 
