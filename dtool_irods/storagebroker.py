@@ -255,7 +255,8 @@ class IrodsStorageBroker(object):
 
     def _get_size_and_timestamp(self, irods_path):
         if self._use_cache:
-            return self._size_and_timestamp_cache[irods_path]
+            if irods_path in self._size_and_timestamp_cache:
+                return self._size_and_timestamp_cache[irods_path]
 
         cmd = CommandWrapper(["ils", "-l", irods_path])
         cmd()
@@ -267,6 +268,7 @@ class IrodsStorageBroker(object):
         time_str = info[4]
         dt = datetime.datetime.strptime(time_str, "%Y-%m-%d.%H:%M")
         utc_timestamp = int(time.mktime(dt.timetuple()))
+
         return size_in_bytes, utc_timestamp
 
     @classmethod
