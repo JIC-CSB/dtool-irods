@@ -14,7 +14,9 @@ Added
 Changed
 ^^^^^^^
 
-- Added metadata cache to reduce time consuming calls to iRODS
+- Improved speed of freezing a dataset in iRODS by making use of
+  caches to reduce the number of calls made to iRODS during this
+  process
 
 
 Deprecated
