@@ -201,12 +201,10 @@ class IrodsStorageBroker(object):
         self._size_and_timestamp_cache = {}
         self._metadata_dir_exists_cache = None
 
-    def _ls_abspaths_freeze_cache(self, irods_path):
-        if (
-            self._use_cache
-            and irods_path in self._ls_abspath_cache
-        ):
-            return self._ls_abspath_cache[irods_path]
+    def _ls_abspaths_with_cache(self, irods_path):
+        if self._use_cache:
+            if irods_path in self._ls_abspath_cache:
+                return self._ls_abspath_cache[irods_path]
 
         abspaths = []
         for f in _ls(irods_path):
@@ -460,7 +458,7 @@ class IrodsStorageBroker(object):
 
     def iter_item_handles(self):
         """Return iterator over item handles."""
-        for abspath in self._ls_abspaths_freeze_cache(self._data_abspath):
+        for abspath in self._ls_abspaths_with_cache(self._data_abspath):
             relpath = self._get_metadata(abspath, "handle")
             yield relpath
 
@@ -529,7 +527,7 @@ class IrodsStorageBroker(object):
 
         prefix = self._handle_to_fragment_absprefixpath(handle)
 
-        files = [f for f in self._ls_abspaths_freeze_cache(
+        files = [f for f in self._ls_abspaths_with_cache(
                  self._metadata_fragments_abspath)
                  if f.startswith(prefix)]
 
