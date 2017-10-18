@@ -253,7 +253,7 @@ class IrodsStorageBroker(object):
                 utc_timestamp
             )
 
-    def _get_size_and_timestamp(self, irods_path):
+    def _get_size_and_timestamp_with_cache(self, irods_path):
         if self._use_cache:
             if irods_path in self._size_and_timestamp_cache:
                 return self._size_and_timestamp_cache[irods_path]
@@ -477,7 +477,9 @@ class IrodsStorageBroker(object):
         checksum_as_hex = base64_to_hex(checksum)
 
         # Get the UTC timestamp and the size in bytes.
-        size, timestamp = self._get_size_and_timestamp(irods_item_path)
+        size, timestamp = self._get_size_and_timestamp_with_cache(
+            irods_item_path
+        )
 
         # Get the relpath from the handle metadata.
         relpath = self._get_metadata_with_cache(irods_item_path, "handle")
