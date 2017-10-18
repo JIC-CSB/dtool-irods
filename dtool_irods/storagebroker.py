@@ -195,18 +195,15 @@ class IrodsStorageBroker(object):
         )
 
         # Cache for optimisation
-        self._use_ls_abspath_cache = False
+        self._use_cache = False
         self._ls_abspath_cache = {}
-        self._use_metadata_cache = False
         self._metadata_cache = {}
-        self._use_size_and_timestamp_cache = False
         self._size_and_timestamp_cache = {}
-        self._use_metadata_dir_exists_cache = False
         self._metadata_dir_exists_cache = None
 
     def _ls_abspaths_freeze_cache(self, irods_path):
         if (
-            self._use_ls_abspath_cache
+            self._use_cache
             and irods_path in self._ls_abspath_cache
         ):
             return self._ls_abspath_cache[irods_path]
@@ -215,13 +212,13 @@ class IrodsStorageBroker(object):
         for f in _ls(irods_path):
             abspaths.append(os.path.join(irods_path, f))
 
-        if self._use_ls_abspath_cache:
+        if self._use_cache:
             self._ls_abspath_cache[irods_path] = abspaths
 
         return abspaths
 
     def _get_metadata(self, irods_path, key):
-        if self._use_ls_abspath_cache:
+        if self._use_cache:
             if irods_path in self._metadata_cache:
                 if key in self._metadata_cache[irods_path]:
                     return self._metadata_cache[irods_path][key]
@@ -231,7 +228,7 @@ class IrodsStorageBroker(object):
         value_line = text.split('\n')[2]
         value = value_line.split(":")[1]
         value = value.strip()
-        if self._use_metadata_cache:
+        if self._use_cache:
             self._metadata_cache.setdefault(
                 irods_path, {}).update({key: value})
         return value
@@ -256,7 +253,7 @@ class IrodsStorageBroker(object):
             )
 
     def _get_size_and_timestamp(self, irods_path):
-        if self._use_size_and_timestamp_cache:
+        if self._use_cache:
             return self._size_and_timestamp_cache[irods_path]
 
         cmd = CommandWrapper(["ils", "-l", irods_path])
@@ -510,7 +507,7 @@ class IrodsStorageBroker(object):
         _put_obj(fpath, value)
 
     def _metadata_dir_exists(self):
-        if self._use_size_and_timestamp_cache:
+        if self._use_cache:
             if self._metadata_dir_exists_cache is None:
                 self._metadata_dir_exists_cache = \
                     _path_exists(self._metadata_fragments_abspath)
@@ -553,10 +550,7 @@ class IrodsStorageBroker(object):
         In iRODS it is used to create caches for repetitive and time consuming
         calls to iRODS.
         """
-        self._use_ls_abspath_cache = True
-        self._use_metadata_cache = True
-        self._use_size_and_timestamp_cache = True
-        self._use_metadata_dir_exists_cache = True
+        self._use_cache = True
         self._build_size_and_timestamp_cache()
 
     def post_freeze_hook(self):
@@ -565,10 +559,7 @@ class IrodsStorageBroker(object):
         This method is called at the end of the
         :meth:`dtoolcore.ProtoDataSet.freeze` method.
         """
-        self._use_ls_abspath_cache = False
-        self._use_metadata_cache = False
-        self._use_size_and_timestamp_cache = False
-        self._use_metadata_dir_exists_cache = False
+        self._use_cache = False
         self._ls_abspath_cache = {}
         self._metadata_cache = {}
         self._size_and_timestamp_cache = {}
