@@ -215,20 +215,23 @@ class IrodsStorageBroker(object):
 
         return abspaths
 
-    def _get_metadata(self, irods_path, key):
+    def _get_metadata_with_cache(self, irods_path, key):
         if self._use_cache:
             if irods_path in self._metadata_cache:
                 if key in self._metadata_cache[irods_path]:
                     return self._metadata_cache[irods_path][key]
+
         cmd = CommandWrapper(["imeta", "ls", "-d", irods_path, key])
         cmd()
         text = cmd.stdout
         value_line = text.split('\n')[2]
         value = value_line.split(":")[1]
         value = value.strip()
+
         if self._use_cache:
             self._metadata_cache.setdefault(
                 irods_path, {}).update({key: value})
+
         return value
 
     def _build_size_and_timestamp_cache(self):
@@ -371,7 +374,7 @@ class IrodsStorageBroker(object):
 
         # Get the file extension from the  relpath from the handle metadata.
         irods_item_path = os.path.join(self._data_abspath, identifier)
-        relpath = self._get_metadata(irods_item_path, "handle")
+        relpath = self._get_metadata_with_cache(irods_item_path, "handle")
         _, ext = os.path.splitext(relpath)
 
         local_item_abspath = os.path.join(
@@ -459,7 +462,7 @@ class IrodsStorageBroker(object):
     def iter_item_handles(self):
         """Return iterator over item handles."""
         for abspath in self._ls_abspaths_with_cache(self._data_abspath):
-            relpath = self._get_metadata(abspath, "handle")
+            relpath = self._get_metadata_with_cache(abspath, "handle")
             yield relpath
 
     def item_properties(self, handle):
@@ -475,7 +478,7 @@ class IrodsStorageBroker(object):
         size, timestamp = self._get_size_and_timestamp(irods_item_path)
 
         # Get the relpath from the handle metadata.
-        relpath = self._get_metadata(irods_item_path, "handle")
+        relpath = self._get_metadata_with_cache(irods_item_path, "handle")
 
         properties = {
             'size_in_bytes': int(size),
