@@ -401,6 +401,13 @@ class IrodsStorageBroker(object):
             raise(StorageBrokerOSError(
                 "Path already exists: {}".format(self._abspath)
             ))
+
+        # Make sure the parent collection exists.
+        parent, _ = os.path.split(self._abspath)
+        if not _path_exists(parent):
+            raise(StorageBrokerOSError(
+                "No such iRODS collection: {}".format(parent)))
+
         _mkdir(self._abspath)
 
         # Create more essential subdirectories.

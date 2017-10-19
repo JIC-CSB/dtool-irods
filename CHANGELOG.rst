@@ -30,7 +30,9 @@ Removed
 Fixed
 ^^^^^
 
-storagebroker's ``put_item`` method now returns relpath
+- storagebroker's ``put_item`` method now returns relpath
+- Made the ``IrodsStorageBroker.create_structure`` method more
+  robust by checking if the parent collection exists
 
 Security
 ^^^^^^^^
