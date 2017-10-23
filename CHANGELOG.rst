@@ -14,10 +14,6 @@ Added
 Changed
 ^^^^^^^
 
-- Improved speed of freezing a dataset in iRODS by making use of
-  caches to reduce the number of calls made to iRODS during this
-  process
-
 
 Deprecated
 ^^^^^^^^^^
@@ -30,15 +26,31 @@ Removed
 Fixed
 ^^^^^
 
+
+Security
+^^^^^^^^
+
+
+[0.4.0] - 2017-10-23
+--------------------
+
+Changed
+^^^^^^^
+
+- Improved speed of freezing a dataset in iRODS by making use of
+  caches to reduce the number of calls made to iRODS during this
+  process
+
+
+Fixed
+^^^^^
+
 - More informative error message when iRODS has not been configured
 - More informative error message when iRODS authentication times out
 - Stopped client hanging when iRODS authentication has timed out
 - storagebroker's ``put_item`` method now returns relpath
 - Made the ``IrodsStorageBroker.create_structure`` method more
   robust by checking if the parent collection exists
-
-Security
-^^^^^^^^
 
 
 [0.3.3] - 2017-10-05
