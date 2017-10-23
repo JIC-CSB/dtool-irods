@@ -1,7 +1,7 @@
 from setuptools import setup
 
 url = "https://github.com/jic-dtool/dtool-irods"
-version = "0.3.3"
+version = "0.4.0"
 readme = open('README.rst').read()
 
 setup(
