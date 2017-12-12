@@ -27,6 +27,8 @@ Fixed
 ^^^^^
 
 - Fixed ``IrodsStorageBroker.generate_uri`` class method
+- Made ``.dtool/manifest.json`` content created by IrodsStorageBroker human
+  readable by adding new lines and indentation to the JSON formatting.
 
 
 Security

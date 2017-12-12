@@ -64,7 +64,7 @@ def _get_obj(irods_path):
 
 def _put_obj(irods_path, obj):
     """Put python object into iRODS as JSON text."""
-    text = json.dumps(obj)
+    text = json.dumps(obj, indent=2)
     _put_text(irods_path, text)
 
 
