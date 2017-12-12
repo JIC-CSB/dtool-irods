@@ -26,6 +26,8 @@ Removed
 Fixed
 ^^^^^
 
+- Fixed ``IrodsStorageBroker.generate_uri`` class method
+
 
 Security
 ^^^^^^^^

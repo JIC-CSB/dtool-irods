@@ -295,7 +295,7 @@ class IrodsStorageBroker(object):
     def generate_uri(cls, name, uuid, prefix):
         dataset_path = os.path.join(prefix, uuid)
         dataset_abspath = os.path.abspath(dataset_path)
-        return "{}:{}".format(cls.key, dataset_abspath)
+        return "{}://{}".format(cls.key, dataset_abspath)
 
 #############################################################################
 # Methods used by both ProtoDataSet and DataSet.
