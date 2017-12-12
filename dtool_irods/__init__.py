@@ -58,6 +58,8 @@ class CommandWrapper(object):
                 # The iRODS authentication has probably timed out.
                 if self.stderr.find("CAT_INVALID_AUTHENTICATION") != -1:
                     print("Try running the iRODS command: iinit")
+                if self.stderr.find("CAT_INVALID_USER") != -1:
+                    print("Try running the iRODS command: iinit")
 
                 sys.exit(self.returncode)
             else:

@@ -29,6 +29,8 @@ Fixed
 - Fixed ``IrodsStorageBroker.generate_uri`` class method
 - Made ``.dtool/manifest.json`` content created by IrodsStorageBroker human
   readable by adding new lines and indentation to the JSON formatting.
+- Added rule to catch ``CAT_INVALID_USER`` string for giving a more informative
+  error message when iRODS authentication times out
 
 
 Security
