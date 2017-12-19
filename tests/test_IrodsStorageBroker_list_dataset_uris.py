@@ -1,15 +1,15 @@
 """Test the IrodsStorageBroker.list_dataset_uris class method."""
 
-from . import tmp_irods_collection_fixture  # NOQA
+from . import tmp_irods_base_uri_fixture  # NOQA
 
 
-def test_list_dataset_uris(tmp_irods_collection_fixture):  # NOQA
+def test_list_dataset_uris(tmp_irods_base_uri_fixture):  # NOQA
 
     import dtoolcore
     from dtool_irods.storagebroker import IrodsStorageBroker
 
     assert [] == IrodsStorageBroker.list_dataset_uris(
-        prefix=tmp_irods_collection_fixture,
+        base_uri=tmp_irods_base_uri_fixture,
         config_path=None
     )
 
@@ -19,13 +19,13 @@ def test_list_dataset_uris(tmp_irods_collection_fixture):  # NOQA
         admin_metadata = dtoolcore.generate_admin_metadata(name)
         proto_dataset = dtoolcore.generate_proto_dataset(
             admin_metadata=admin_metadata,
-            prefix=tmp_irods_collection_fixture,
-            storage="irods")
+            base_uri=tmp_irods_base_uri_fixture
+        )
         proto_dataset.create()
         expected_uris.append(proto_dataset.uri)
 
     actual_uris = IrodsStorageBroker.list_dataset_uris(
-        prefix=tmp_irods_collection_fixture,
+        base_uri=tmp_irods_base_uri_fixture,
         config_path=None
     )
 

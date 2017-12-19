@@ -14,6 +14,10 @@ Added
 Changed
 ^^^^^^^
 
+- Make use of version 3 of the dtoolcore API. Specifically making use of the
+  new ``base_uri`` argument that replaces ``prefix`` in the ``list_dataset_uri``
+  and ``generate_uri`` class methods.
+
 
 Deprecated
 ^^^^^^^^^^

@@ -66,7 +66,8 @@ def tmp_uuid_and_uri(request):
     admin_metadata = generate_admin_metadata("test_dataset")
     uuid = admin_metadata["uuid"]
 
-    uri = IrodsStorageBroker.generate_uri("test_dataset", uuid, TEST_ZONE)
+    base_uri = "irods:" + TEST_ZONE
+    uri = IrodsStorageBroker.generate_uri("test_dataset", uuid, base_uri)
 
     @request.addfinalizer
     def teardown():
@@ -77,7 +78,7 @@ def tmp_uuid_and_uri(request):
 
 
 @pytest.fixture
-def tmp_irods_collection_fixture(request):
+def tmp_irods_base_uri_fixture(request):
     collection = os.path.join(TEST_ZONE, random_string())
 
     _mkdir(collection)
@@ -86,4 +87,4 @@ def tmp_irods_collection_fixture(request):
     def teardown():
         _rm_if_exists(collection)
 
-    return collection
+    return "irods:" + collection

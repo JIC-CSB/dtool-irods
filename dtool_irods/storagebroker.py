@@ -12,6 +12,7 @@ from dtoolcore.utils import (
     base64_to_hex,
     get_config_value,
     mkdir_parents,
+    generous_parse_uri,
 )
 from dtoolcore.filehasher import FileHasher, sha256sum_hexdigest
 from dtoolcore.storagebroker import StorageBrokerOSError
@@ -167,7 +168,9 @@ class IrodsStorageBroker(object):
 
     def __init__(self, uri, config_path=None):
 
-        self._abspath = os.path.abspath(uri)
+        parsed_uri = generous_parse_uri(uri)
+
+        self._abspath = os.path.abspath(parsed_uri.path)
         self._dtool_abspath = os.path.join(self._abspath, '.dtool')
         self._admin_metadata_fpath = os.path.join(self._dtool_abspath, 'dtool')
         self._data_abspath = os.path.join(self._abspath, 'data')
@@ -272,30 +275,40 @@ class IrodsStorageBroker(object):
         return size_in_bytes, utc_timestamp
 
     @classmethod
-    def list_dataset_uris(cls, prefix, config_path):
-        """Return list containing URIs in prefix location."""
+    def list_dataset_uris(cls, base_uri, config_path):
+        """Return list containing URIs in base_uri."""
+        parsed_uri = generous_parse_uri(base_uri)
+        irods_path = parsed_uri.path
+
         uri_list = []
 
-        logger.info("prefix: '{}'".format(prefix))
+        logger.info("irods_path: '{}'".format(irods_path))
 
-        for dir_path in _ls_abspaths(prefix):
+        for dir_path in _ls_abspaths(irods_path):
 
             logger.info("dir path: '{}'".format(dir_path))
 
-            storage_broker = cls(dir_path, config_path)
+            base, uuid = os.path.split(dir_path)
+            base_uri = "irods:{}".format(base)
+            uri = cls.generate_uri(
+                name=None,
+                uuid=uuid,
+                base_uri=base_uri
+            )
 
-            if not storage_broker.has_admin_metadata():
-                continue
+            storage_broker = cls(uri, config_path)
 
-            uri_list.append("{}://{}".format(cls.key, dir_path))
+            if storage_broker.has_admin_metadata():
+                uri_list.append(uri)
 
         return uri_list
 
     @classmethod
-    def generate_uri(cls, name, uuid, prefix):
+    def generate_uri(cls, name, uuid, base_uri):
+        prefix = generous_parse_uri(base_uri).path
         dataset_path = os.path.join(prefix, uuid)
         dataset_abspath = os.path.abspath(dataset_path)
-        return "{}://{}".format(cls.key, dataset_abspath)
+        return "{}:{}".format(cls.key, dataset_abspath)
 
 #############################################################################
 # Methods used by both ProtoDataSet and DataSet.
