@@ -47,8 +47,8 @@ Dataset items: data/
 The item identifiers are used to name the files in the data
 collection/directory.
 
-An item identifier is the hash of the relative path used to
-represent the file on traditional file system disk.
+An item identifier is the sha1sum hexdigest of the relative path
+used to represent the file on traditional file system disk.
 
 Automatically generated files and directories
 ---------------------------------------------
