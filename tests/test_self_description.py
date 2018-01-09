@@ -4,7 +4,8 @@ import os
 
 from . import tmp_uuid_and_uri  # NOQA
 
-def test_writing_of_dtool_structure_file(tmp_uuid_and_uri):
+
+def test_writing_of_dtool_structure_file(tmp_uuid_and_uri):  # NOQA
     from dtoolcore import ProtoDataSet, generate_admin_metadata
     from dtoolcore.utils import generous_parse_uri
     from dtool_irods.storagebroker import _path_exists, _get_obj
@@ -44,7 +45,7 @@ def test_writing_of_dtool_structure_file(tmp_uuid_and_uri):
     assert expected_content == actual_content
 
 
-def test_writing_of_dtool_readme_file(tmp_uuid_and_uri):
+def test_writing_of_dtool_readme_file(tmp_uuid_and_uri):  # NOQA
     from dtoolcore import ProtoDataSet, generate_admin_metadata
     from dtoolcore.utils import generous_parse_uri
     from dtool_irods.storagebroker import _path_exists, _get_text
