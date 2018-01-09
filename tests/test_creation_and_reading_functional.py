@@ -8,6 +8,8 @@ import pytest
 
 from dtoolcore.filehasher import sha256sum_hexdigest
 
+from dtool_irods.storagebroker import _path_exists
+
 from . import tmp_uuid_and_uri  # NOQA
 from . import TEST_SAMPLE_DATA
 
@@ -90,10 +92,14 @@ def test_proto_dataset_freeze_functional(tmp_uuid_and_uri):  # NOQA
     with pytest.raises(DtoolCoreTypeError):
         DataSet.from_uri(dest_uri)
 
+    # At this point the temporary fragments directory should exist.
+    assert _path_exists(
+        proto_dataset._storage_broker._metadata_fragments_abspath)
+
     proto_dataset.freeze()
 
     # Freezing removes the temporary metadata fragments directory.
-    assert not os.path.isdir(
+    assert not _path_exists(
         proto_dataset._storage_broker._metadata_fragments_abspath)
 
     # Now we shouln't be able to load as a ProtoDataSet
