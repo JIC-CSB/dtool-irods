@@ -10,6 +10,11 @@ This change log uses principles from `keep a changelog <http://keepachangelog.co
 Added
 ^^^^^
 
+- Writing of ``.dtool/structure.json`` file to the IrodsStorageBroker; a file
+  for describing the structure of the dtool dataset in a computer readable format
+- Writing of ``.dtool/README.txt`` file to the IrodsStorageBroker; a file
+  for describing the structure of the dtool dataset in a human readable format
+
 
 Changed
 ^^^^^^^

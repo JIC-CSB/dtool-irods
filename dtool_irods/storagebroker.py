@@ -21,6 +21,45 @@ from dtool_irods import CommandWrapper
 
 logger = logging.getLogger(__name__)
 
+_STRUCTURE_PARAMETERS = {
+    "data_directory": ["data"],
+    "dataset_readme_relpath": ["README.yml"],
+    "dtool_directory": [".dtool"],
+    "admin_metadata_relpath": [".dtool", "dtool"],
+    "structure_metadata_relpath": [".dtool", "structure.json"],
+    "dtool_readme_relpath": [".dtool", "README.txt"],
+    "manifest_relpath": [".dtool", "manifest.json"],
+    "overlays_directory": [".dtool", "overlays"],
+    "metadata_fragments_directory": [".dtool", "tmp_fragments"],
+}
+
+_DTOOL_README_TXT = """README
+======
+
+This is a Dtool dataset stored in iRODS.
+
+Content provided during the dataset creation process
+----------------------------------------------------
+
+Dataset descriptive metadata: README.yml
+Dataset items: data/
+
+The item identifiers are used to name the files in the data
+collection/directory.
+
+An item identifier is the hash of the relative path used to
+represent the file on traditional file system disk.
+
+Automatically generated files and directories
+---------------------------------------------
+
+This file: .dtool/README.txt
+Administrative metadata describing the dataset: .dtool/dtool
+Structural metadata describing the dataset: .dtool/structure.json
+Structural metadata describing the data items: .dtool/manifest.json
+Per item descriptive metadata: .dtool/overlays/
+"""
+
 
 #############################################################################
 # iRODS helper functions.
@@ -168,28 +207,7 @@ class IrodsStorageBroker(object):
 
     def __init__(self, uri, config_path=None):
 
-        parsed_uri = generous_parse_uri(uri)
-
-        self._abspath = os.path.abspath(parsed_uri.path)
-        self._dtool_abspath = os.path.join(self._abspath, '.dtool')
-        self._admin_metadata_fpath = os.path.join(self._dtool_abspath, 'dtool')
-        self._data_abspath = os.path.join(self._abspath, 'data')
-        self._manifest_abspath = os.path.join(
-            self._dtool_abspath,
-            'manifest.json'
-        )
-        self._readme_abspath = os.path.join(
-            self._abspath,
-            'README.yml'
-        )
-        self._overlays_abspath = os.path.join(
-            self._dtool_abspath,
-            'overlays'
-        )
-        self._metadata_fragments_abspath = os.path.join(
-            self._dtool_abspath,
-            'tmp_fragments'
-        )
+        self._set_abspaths(uri)
 
         self._irods_cache_abspath = get_config_value(
             "DTOOL_IRODS_CACHE_DIRECTORY",
@@ -203,6 +221,30 @@ class IrodsStorageBroker(object):
         self._metadata_cache = {}
         self._size_and_timestamp_cache = {}
         self._metadata_dir_exists_cache = None
+
+    def _set_abspaths(self, uri):
+        """Define useful absolute paths for future reference."""
+
+        parse_result = generous_parse_uri(uri)
+        path = parse_result.path
+        self._abspath = os.path.abspath(path)
+
+        def generate_abspath(key):
+            return os.path.join(self._abspath, *_STRUCTURE_PARAMETERS[key])
+
+        self._dtool_abspath = generate_abspath("dtool_directory")
+        self._data_abspath = generate_abspath("data_directory")
+        self._admin_metadata_fpath = generate_abspath("admin_metadata_relpath")
+        self._structure_metadata_fpath = generate_abspath(
+            "structure_metadata_relpath"
+        )
+        self._dtool_readme_abspath = generate_abspath("dtool_readme_relpath")
+        self._manifest_abspath = generate_abspath("manifest_relpath")
+        self._readme_abspath = generate_abspath("dataset_readme_relpath")
+        self._overlays_abspath = generate_abspath("overlays_directory")
+        self._metadata_fragments_abspath = generate_abspath(
+            "metadata_fragments_directory"
+        )
 
     def _ls_abspaths_with_cache(self, irods_path):
         if self._use_cache:
@@ -431,6 +473,10 @@ class IrodsStorageBroker(object):
         ]
         for abspath in essential_subdirectories:
             _mkdir_if_missing(abspath)
+
+        # Write out self descriptive metadata.
+        _put_obj(self._structure_metadata_fpath, _STRUCTURE_PARAMETERS)
+        _put_text(self._dtool_readme_abspath, _DTOOL_README_TXT)
 
     def put_admin_metadata(self, admin_metadata):
         """Store the admin metadata by writing to iRODS.
