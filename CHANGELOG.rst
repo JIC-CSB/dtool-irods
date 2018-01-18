@@ -10,18 +10,9 @@ This change log uses principles from `keep a changelog <http://keepachangelog.co
 Added
 ^^^^^
 
-- Writing of ``.dtool/structure.json`` file to the IrodsStorageBroker; a file
-  for describing the structure of the dtool dataset in a computer readable format
-- Writing of ``.dtool/README.txt`` file to the IrodsStorageBroker; a file
-  for describing the structure of the dtool dataset in a human readable format
-
 
 Changed
 ^^^^^^^
-
-- Make use of version 3 of the dtoolcore API. Specifically making use of the
-  new ``base_uri`` argument that replaces ``prefix`` in the ``list_dataset_uri``
-  and ``generate_uri`` class methods.
 
 
 Deprecated
@@ -39,6 +30,25 @@ Fixed
 Security
 ^^^^^^^^
 
+
+[0.5.0] - 2018-01-18
+--------------------
+
+Added
+^^^^^
+
+- Writing of ``.dtool/structure.json`` file to the IrodsStorageBroker; a file
+  for describing the structure of the dtool dataset in a computer readable format
+- Writing of ``.dtool/README.txt`` file to the IrodsStorageBroker; a file
+  for describing the structure of the dtool dataset in a human readable format
+
+
+Changed
+^^^^^^^
+
+- Make use of version 3 of the dtoolcore API. Specifically making use of the
+  new ``base_uri`` argument that replaces ``prefix`` in the ``list_dataset_uri``
+  and ``generate_uri`` class methods.
 
 [0.4.1] - 2017-12-14
 --------------------
