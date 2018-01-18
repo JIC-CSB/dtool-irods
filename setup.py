@@ -17,7 +17,7 @@ setup(
     download_url="{}/tarball/{}".format(url, version),
     install_requires=[
         "click",
-        "dtoolcore>=2.9.0",
+        "dtoolcore>=3.0.0",
         "dtool_cli",
     ],
     entry_points={
