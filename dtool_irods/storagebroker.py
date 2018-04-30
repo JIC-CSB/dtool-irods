@@ -193,6 +193,10 @@ def _get_checksum(irods_path):
 #############################################################################
 
 
+class IrodsNoMetaDataSetError(LookupError):
+    pass
+
+
 class IrodsStorageBroker(object):
     """
     Storage broker to interact with datasets in iRODS.
@@ -270,6 +274,10 @@ class IrodsStorageBroker(object):
         cmd()
         text = cmd.stdout
         value_line = text.split('\n')[2]
+
+        if ":" not in value_line:
+            raise(IrodsNoMetaDataSetError())
+
         value = value_line.split(":")[1]
         value = value.strip()
 
@@ -530,8 +538,11 @@ class IrodsStorageBroker(object):
     def iter_item_handles(self):
         """Return iterator over item handles."""
         for abspath in self._ls_abspaths_with_cache(self._data_abspath):
-            relpath = self._get_metadata_with_cache(abspath, "handle")
-            yield relpath
+            try:
+                relpath = self._get_metadata_with_cache(abspath, "handle")
+                yield relpath
+            except IrodsNoMetaDataSetError:
+                pass
 
     def item_properties(self, handle):
         """Return properties of the item with the given handle."""
