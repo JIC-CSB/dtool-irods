@@ -26,13 +26,20 @@ Removed
 Fixed
 ^^^^^
 
-- Fixed issue arising from a file being put into iRODS and the connection
-  breaking before the appropriate metadata could be set on the file in iRODS.
-  See also: https://github.com/jic-dtool/dtool-irods/issues/7
-
 
 Security
 ^^^^^^^^
+
+
+[0.5.1] - 2018-05-01
+--------------------
+
+Fixed
+^^^^^
+
+- Fixed issue arising from a file being put into iRODS and the connection
+  breaking before the appropriate metadata could be set on the file in iRODS.
+  See also: https://github.com/jic-dtool/dtool-irods/issues/7
 
 
 [0.5.0] - 2018-01-18
