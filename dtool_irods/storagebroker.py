@@ -85,7 +85,7 @@ def _put_text(irods_path, text):
     """Put raw text into iRODS."""
     with tempfile.NamedTemporaryFile() as fh:
         fpath = fh.name
-        fh.write(text)
+        fh.write(text.encode())
         fh.flush()
         cmd = CommandWrapper([
             "iput",

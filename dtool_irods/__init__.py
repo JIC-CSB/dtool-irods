@@ -32,7 +32,7 @@ class CommandWrapper(object):
         # Calling this command with newline as stdin as the
         # iCommnads hangs waiting for user input if the password
         # has not been set or has timed out.
-        self.stdout, self.stderr = p.communicate("\n")
+        self.stdout, self.stderr = p.communicate("\n".encode())
         self.stdout = self.stdout.decode("utf-8")
         self.stderr = self.stderr.decode("utf-8")
         self.returncode = p.returncode
