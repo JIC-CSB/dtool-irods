@@ -26,12 +26,19 @@ Removed
 Fixed
 ^^^^^
 
-- Made dtool-irods Python 3 compatible
-- Made download to DTOOL_IRODS_CACHE_DIRECTORY more robust
-
 
 Security
 ^^^^^^^^
+
+
+[0.5.2] - 2018-07-09
+--------------------
+
+Fixed
+^^^^^
+
+- Made dtool-irods Python 3 compatible
+- Made download to DTOOL_IRODS_CACHE_DIRECTORY more robust
 
 
 [0.5.1] - 2018-05-01
