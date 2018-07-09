@@ -26,6 +26,8 @@ Removed
 Fixed
 ^^^^^
 
+- Made download to DTOOL_IRODS_CACHE_DIRECTORY more robust
+
 
 Security
 ^^^^^^^^

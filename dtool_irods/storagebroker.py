@@ -447,7 +447,9 @@ class IrodsStorageBroker(object):
             identifier + ext)
 
         if not os.path.isfile(local_item_abspath):
-            _get_file(irods_item_path, local_item_abspath)
+            tmp_local_item_abspath = local_item_abspath + ".tmp"
+            _get_file(irods_item_path, tmp_local_item_abspath)
+            os.rename(tmp_local_item_abspath, local_item_abspath)
 
         return local_item_abspath
 

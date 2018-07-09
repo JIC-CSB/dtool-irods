@@ -5,6 +5,7 @@ import shutil
 import tempfile
 import string
 import random
+from contextlib import contextmanager
 
 import pytest
 
@@ -20,6 +21,20 @@ _HERE = os.path.dirname(__file__)
 TEST_SAMPLE_DATA = os.path.join(_HERE, "data")
 
 TEST_ZONE = "/jic_archive"
+
+
+@contextmanager
+def tmp_env_var(key, value):
+    os.environ[key] = value
+    yield
+    del os.environ[key]
+
+
+@contextmanager
+def tmp_directory():
+    d = tempfile.mkdtemp()
+    yield d
+    shutil.rmtree(d)
 
 
 def random_string(
