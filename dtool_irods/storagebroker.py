@@ -209,6 +209,9 @@ class IrodsStorageBroker(BaseStorageBroker):
     #: function name to the manifest.
     hasher = FileHasher(sha256sum_hexdigest)
 
+    _structure_parameters = _STRUCTURE_PARAMETERS
+    _dtool_readme_txt  = _DTOOL_README_TXT
+
     def __init__(self, uri, config_path=None):
 
         self._set_abspaths(uri)
@@ -380,16 +383,21 @@ class IrodsStorageBroker(BaseStorageBroker):
     def get_overlay_key(self, overlay_name):
         return os.path.join(self._overlays_abspath, overlay_name + '.json')
 
+    def get_structure_key(self):
+        return self._structure_metadata_fpath
+
+    def get_readme_key(self):
+        return self._readme_abspath
+
+    def get_dtool_readme_key(self):
+        return self._dtool_readme_abspath
+
     def has_admin_metadata(self):
         """Return True if the administrative metadata exists.
 
         This is the definition of being a "dataset".
         """
         return _path_exists(self.get_admin_metadata_key())
-
-#############################################################################
-# Methods only used by DataSet.
-#############################################################################
 
     def list_overlay_names(self):
         """Return list of overlay names."""
@@ -432,7 +440,7 @@ class IrodsStorageBroker(BaseStorageBroker):
 # Methods only used by ProtoDataSet.
 #############################################################################
 
-    def create_structure(self):
+    def _create_structure(self):
         """Create necessary structure to hold a dataset."""
 
         # Ensure that the specified path does not exist and create it.
@@ -457,10 +465,6 @@ class IrodsStorageBroker(BaseStorageBroker):
         ]
         for abspath in essential_subdirectories:
             _mkdir_if_missing(abspath)
-
-        # Write out self descriptive metadata.
-        _put_obj(self._structure_metadata_fpath, _STRUCTURE_PARAMETERS)
-        _put_text(self._dtool_readme_abspath, _DTOOL_README_TXT)
 
     def put_item(self, fpath, relpath):
         """Put item with content from fpath at relpath in dataset.
