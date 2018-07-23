@@ -15,7 +15,7 @@ from dtoolcore.utils import (
     generous_parse_uri,
 )
 from dtoolcore.filehasher import FileHasher, sha256sum_hexdigest
-from dtoolcore.storagebroker import StorageBrokerOSError
+from dtoolcore.storagebroker import StorageBrokerOSError, BaseStorageBroker
 
 from dtool_irods import CommandWrapper
 
@@ -197,7 +197,7 @@ class IrodsNoMetaDataSetError(LookupError):
     pass
 
 
-class IrodsStorageBroker(object):
+class IrodsStorageBroker(BaseStorageBroker):
     """
     Storage broker to interact with datasets in iRODS.
     """
