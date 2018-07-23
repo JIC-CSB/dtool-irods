@@ -371,19 +371,15 @@ class IrodsStorageBroker(BaseStorageBroker):
     def get_admin_metadata_key(self):
         return self._admin_metadata_fpath
 
+    def get_readme_key(self):
+        return self._readme_abspath
+
     def has_admin_metadata(self):
         """Return True if the administrative metadata exists.
 
         This is the definition of being a "dataset".
         """
         return _path_exists(self.get_admin_metadata_key())
-
-    def get_readme_content(self):
-        """Return content of the README file as a string.
-
-        :returns: readme content as a string
-        """
-        return _get_text(self._readme_abspath)
 
     def put_overlay(self, overlay_name, overlay):
         """Store the overlay by writing it to iRODS.
@@ -497,16 +493,6 @@ class IrodsStorageBroker(BaseStorageBroker):
         :param manifest: dictionary with manifest structural metadata
         """
         _put_obj(self._manifest_abspath, manifest)
-
-    def put_readme(self, content):
-        """
-        Put content into the README of the dataset.
-
-        The client is responsible for ensuring that the content is valid YAML.
-
-        :param content: string to put into the README
-        """
-        _put_text(self._readme_abspath, content)
 
     def put_item(self, fpath, relpath):
         """Put item with content from fpath at relpath in dataset.
