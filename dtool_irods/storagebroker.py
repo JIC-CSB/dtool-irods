@@ -494,30 +494,29 @@ class IrodsStorageBroker(BaseStorageBroker):
             except IrodsNoMetaDataSetError:
                 pass
 
-    def item_properties(self, handle):
-        """Return properties of the item with the given handle."""
+    def _get_item_key_from_handle(self, handle):
         fname = generate_identifier(handle)
-        irods_item_path = os.path.join(self._data_abspath, fname)
+        return os.path.join(self._data_abspath, fname)
 
-        # Get the hash.
-        checksum = _get_checksum(irods_item_path)
-        checksum_as_hex = base64_to_hex(checksum)
+    def get_size_in_bytes(self, handle):
+        key = self._get_item_key_from_handle(handle)
+        size, timestamp = self._get_size_and_timestamp_with_cache(key)
+        return size
 
-        # Get the UTC timestamp and the size in bytes.
-        size, timestamp = self._get_size_and_timestamp_with_cache(
-            irods_item_path
-        )
+    def get_utc_timestamp(self, handle):
+        key = self._get_item_key_from_handle(handle)
+        size, timestamp = self._get_size_and_timestamp_with_cache(key)
+        return timestamp
 
-        # Get the relpath from the handle metadata.
-        relpath = self._get_metadata_with_cache(irods_item_path, "handle")
+    def get_hash(self, handle):
+        key = self._get_item_key_from_handle(handle)
+        checksum = _get_checksum(key)
+        return base64_to_hex(checksum)
 
-        properties = {
-            'size_in_bytes': int(size),
-            'utc_timestamp': timestamp,
-            'hash': checksum_as_hex,
-            'relpath': relpath
-        }
-        return properties
+# According to the tests the below is not needed.
+#   def get_relpath(self, handle):
+#       key = self._get_item_key_from_handle(handle)
+#       return self._get_metadata_with_cache(key, "handle")
 
     def _handle_to_fragment_absprefixpath(self, handle):
         stem = generate_identifier(handle)
