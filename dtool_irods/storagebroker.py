@@ -154,7 +154,7 @@ def _ls(irods_path):
         for l in lines:
             if l.startswith("C"):
                 _, path = l.split()
-                l = os.path.basename(path)
+                l = os.path.basename(path)  # NOQA
             fixed_lines.append(l)
         return fixed_lines
 
@@ -210,7 +210,7 @@ class IrodsStorageBroker(BaseStorageBroker):
     hasher = FileHasher(sha256sum_hexdigest)
 
     _structure_parameters = _STRUCTURE_PARAMETERS
-    _dtool_readme_txt  = _DTOOL_README_TXT
+    _dtool_readme_txt = _DTOOL_README_TXT
 
     def __init__(self, uri, config_path=None):
 
@@ -385,9 +385,6 @@ class IrodsStorageBroker(BaseStorageBroker):
 
     def get_structure_key(self):
         return self._structure_metadata_fpath
-
-    def get_readme_key(self):
-        return self._readme_abspath
 
     def get_dtool_readme_key(self):
         return self._dtool_readme_abspath
