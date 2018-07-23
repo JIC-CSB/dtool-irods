@@ -374,24 +374,15 @@ class IrodsStorageBroker(BaseStorageBroker):
     def get_readme_key(self):
         return self._readme_abspath
 
+    def get_overlay_key(self, overlay_name):
+        return os.path.join(self._overlays_abspath, overlay_name + '.json')
+
     def has_admin_metadata(self):
         """Return True if the administrative metadata exists.
 
         This is the definition of being a "dataset".
         """
         return _path_exists(self.get_admin_metadata_key())
-
-    def put_overlay(self, overlay_name, overlay):
-        """Store the overlay by writing it to iRODS.
-
-        It is the client's responsibility to ensure that the overlay provided
-        is a dictionary with valid contents.
-
-        :param overlay_name: name of the overlay
-        :overlay: overlay dictionary
-        """
-        fpath = os.path.join(self._overlays_abspath, overlay_name + '.json')
-        _put_obj(fpath, overlay)
 
 #############################################################################
 # Methods only used by DataSet.
@@ -411,15 +402,6 @@ class IrodsStorageBroker(BaseStorageBroker):
             name, ext = os.path.splitext(fname)
             overlay_names.append(name)
         return overlay_names
-
-    def get_overlay(self, overlay_name):
-        """Return overlay as a dictionary.
-
-        :param overlay_name: name of the overlay
-        :returns: overlay as a dictionary
-        """
-        fpath = os.path.join(self._overlays_abspath, overlay_name + '.json')
-        return _get_obj(fpath)
 
     def get_item_abspath(self, identifier):
         """Return absolute path at which item content can be accessed.
