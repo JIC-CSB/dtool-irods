@@ -360,23 +360,23 @@ class IrodsStorageBroker(BaseStorageBroker):
         dataset_abspath = os.path.abspath(dataset_path)
         return "{}:{}".format(cls.key, dataset_abspath)
 
-#############################################################################
-# Methods used by both ProtoDataSet and DataSet.
-#############################################################################
+# Methods to override.
 
-    def get_admin_metadata(self):
-        """Return admin metadata from iRODS.
+    def get_text(self, key):
+        return _get_text(key)
 
-        :returns: administrative metadata as a dictionary
-        """
-        return _get_obj(self._admin_metadata_fpath)
+    def put_text(self, key, text):
+        _put_text(key, text)
+
+    def get_admin_metadata_key(self):
+        return self._admin_metadata_fpath
 
     def has_admin_metadata(self):
         """Return True if the administrative metadata exists.
 
         This is the definition of being a "dataset".
         """
-        return _path_exists(self._admin_metadata_fpath)
+        return _path_exists(self.get_admin_metadata_key())
 
     def get_readme_content(self):
         """Return content of the README file as a string.
@@ -487,16 +487,6 @@ class IrodsStorageBroker(BaseStorageBroker):
         # Write out self descriptive metadata.
         _put_obj(self._structure_metadata_fpath, _STRUCTURE_PARAMETERS)
         _put_text(self._dtool_readme_abspath, _DTOOL_README_TXT)
-
-    def put_admin_metadata(self, admin_metadata):
-        """Store the admin metadata by writing to iRODS.
-
-        It is the client's responsibility to ensure that the admin metadata
-        provided is a dictionary with valid contents.
-
-        :param admin_metadata: dictionary with administrative metadata
-        """
-        _put_obj(self._admin_metadata_fpath, admin_metadata)
 
     def put_manifest(self, manifest):
         """Store the manifest by writing it to iRODS.
