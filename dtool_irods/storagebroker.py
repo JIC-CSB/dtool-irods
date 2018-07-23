@@ -371,6 +371,9 @@ class IrodsStorageBroker(BaseStorageBroker):
     def get_admin_metadata_key(self):
         return self._admin_metadata_fpath
 
+    def get_manifest_key(self):
+        return self._manifest_abspath
+
     def get_readme_key(self):
         return self._readme_abspath
 
@@ -387,13 +390,6 @@ class IrodsStorageBroker(BaseStorageBroker):
 #############################################################################
 # Methods only used by DataSet.
 #############################################################################
-
-    def get_manifest(self):
-        """Return the manifest contents from iRODS.
-
-        :returns: manifest as a dictionary
-        """
-        return _get_obj(self._manifest_abspath)
 
     def list_overlay_names(self):
         """Return list of overlay names."""
@@ -465,16 +461,6 @@ class IrodsStorageBroker(BaseStorageBroker):
         # Write out self descriptive metadata.
         _put_obj(self._structure_metadata_fpath, _STRUCTURE_PARAMETERS)
         _put_text(self._dtool_readme_abspath, _DTOOL_README_TXT)
-
-    def put_manifest(self, manifest):
-        """Store the manifest by writing it to iRODS.
-
-        It is the client's responsibility to ensure that the manifest provided
-        is a dictionary with valid contents.
-
-        :param manifest: dictionary with manifest structural metadata
-        """
-        _put_obj(self._manifest_abspath, manifest)
 
     def put_item(self, fpath, relpath):
         """Put item with content from fpath at relpath in dataset.
