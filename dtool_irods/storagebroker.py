@@ -592,3 +592,10 @@ class IrodsStorageBroker(BaseStorageBroker):
         self._metadata_cache = {}
         self._size_and_timestamp_cache = {}
         _rm_if_exists(self._metadata_fragments_abspath)
+
+    def _list_historical_readme_keys(self):
+        historical_readme_keys = []
+        for key in _ls_abspaths(self._abspath):
+            if key.find("README.yml-") != -1:
+                historical_readme_keys.append(key)
+        return historical_readme_keys
