@@ -1,8 +1,6 @@
-import os
 import time
 
 from . import tmp_uuid_and_uri  # NOQA
-from . import TEST_SAMPLE_DATA
 
 
 def test_update_readme(tmp_uuid_and_uri):  # NOQA
@@ -11,14 +9,10 @@ def test_update_readme(tmp_uuid_and_uri):  # NOQA
 
     from dtoolcore import ProtoDataSet, generate_admin_metadata
     from dtoolcore import DataSet
-    from dtoolcore.utils import generate_identifier
 
     name = "my_dataset"
     admin_metadata = generate_admin_metadata(name)
     admin_metadata["uuid"] = uuid
-
-    sample_data_path = os.path.join(TEST_SAMPLE_DATA)
-    local_file_path = os.path.join(sample_data_path, 'tiny.png')
 
     # Create a minimal dataset
     proto_dataset = ProtoDataSet(
