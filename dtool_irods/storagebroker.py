@@ -214,7 +214,16 @@ class IrodsStorageBroker(BaseStorageBroker):
 
     def __init__(self, uri, config_path=None):
 
-        self._set_abspaths(uri)
+        parse_result = generous_parse_uri(uri)
+        path = parse_result.path
+        self._abspath = os.path.abspath(path)
+
+        self._dtool_abspath = self._generate_abspath("dtool_directory")
+        self._data_abspath = self._generate_abspath("data_directory")
+        self._overlays_abspath = self._generate_abspath("overlays_directory")
+        self._metadata_fragments_abspath = self._generate_abspath(
+            "metadata_fragments_directory"
+        )
 
         self._irods_cache_abspath = get_config_value(
             "DTOOL_IRODS_CACHE_DIRECTORY",
@@ -229,29 +238,10 @@ class IrodsStorageBroker(BaseStorageBroker):
         self._size_and_timestamp_cache = {}
         self._metadata_dir_exists_cache = None
 
-    def _set_abspaths(self, uri):
-        """Define useful absolute paths for future reference."""
+    # Generic helper functions.
 
-        parse_result = generous_parse_uri(uri)
-        path = parse_result.path
-        self._abspath = os.path.abspath(path)
-
-        def generate_abspath(key):
-            return os.path.join(self._abspath, *_STRUCTURE_PARAMETERS[key])
-
-        self._dtool_abspath = generate_abspath("dtool_directory")
-        self._data_abspath = generate_abspath("data_directory")
-        self._admin_metadata_fpath = generate_abspath("admin_metadata_relpath")
-        self._structure_metadata_fpath = generate_abspath(
-            "structure_metadata_relpath"
-        )
-        self._dtool_readme_abspath = generate_abspath("dtool_readme_relpath")
-        self._manifest_abspath = generate_abspath("manifest_relpath")
-        self._readme_abspath = generate_abspath("dataset_readme_relpath")
-        self._overlays_abspath = generate_abspath("overlays_directory")
-        self._metadata_fragments_abspath = generate_abspath(
-            "metadata_fragments_directory"
-        )
+    def _generate_abspath(self, key):
+        return os.path.join(self._abspath, *self._structure_parameters[key])
 
     def _ls_abspaths_with_cache(self, irods_path):
         if self._use_cache:
@@ -327,6 +317,24 @@ class IrodsStorageBroker(BaseStorageBroker):
 
         return size_in_bytes, utc_timestamp
 
+    def _get_item_key_from_handle(self, handle):
+        fname = generate_identifier(handle)
+        return os.path.join(self._data_abspath, fname)
+
+    def _handle_to_fragment_absprefixpath(self, handle):
+        stem = generate_identifier(handle)
+        return os.path.join(self._metadata_fragments_abspath, stem)
+
+    def _metadata_dir_exists(self):
+        if self._use_cache:
+            if self._metadata_dir_exists_cache is None:
+                self._metadata_dir_exists_cache = \
+                    _path_exists(self._metadata_fragments_abspath)
+            return self._metadata_dir_exists_cache
+        return _path_exists(self._metadata_fragments_abspath)
+
+    # Class methods to override.
+
     @classmethod
     def list_dataset_uris(cls, base_uri, config_path):
         """Return list containing URIs in base_uri."""
@@ -363,7 +371,7 @@ class IrodsStorageBroker(BaseStorageBroker):
         dataset_abspath = os.path.abspath(dataset_path)
         return "{}:{}".format(cls.key, dataset_abspath)
 
-# Methods to override.
+    # Methods to override.
 
     def get_text(self, key):
         return _get_text(key)
@@ -372,22 +380,22 @@ class IrodsStorageBroker(BaseStorageBroker):
         _put_text(key, text)
 
     def get_admin_metadata_key(self):
-        return self._admin_metadata_fpath
+        return self._generate_abspath("admin_metadata_relpath")
 
     def get_manifest_key(self):
-        return self._manifest_abspath
+        return self._generate_abspath("manifest_relpath")
 
     def get_readme_key(self):
-        return self._readme_abspath
+        return self._generate_abspath("dataset_readme_relpath")
 
     def get_overlay_key(self, overlay_name):
         return os.path.join(self._overlays_abspath, overlay_name + '.json')
 
     def get_structure_key(self):
-        return self._structure_metadata_fpath
+        return self._generate_abspath("structure_metadata_relpath")
 
     def get_dtool_readme_key(self):
-        return self._dtool_readme_abspath
+        return self._generate_abspath("dtool_readme_relpath")
 
     def has_admin_metadata(self):
         """Return True if the administrative metadata exists.
@@ -431,11 +439,6 @@ class IrodsStorageBroker(BaseStorageBroker):
             os.rename(tmp_local_item_abspath, local_item_abspath)
 
         return local_item_abspath
-
-
-#############################################################################
-# Methods only used by ProtoDataSet.
-#############################################################################
 
     def _create_structure(self):
         """Create necessary structure to hold a dataset."""
@@ -491,10 +494,6 @@ class IrodsStorageBroker(BaseStorageBroker):
             except IrodsNoMetaDataSetError:
                 pass
 
-    def _get_item_key_from_handle(self, handle):
-        fname = generate_identifier(handle)
-        return os.path.join(self._data_abspath, fname)
-
     def get_size_in_bytes(self, handle):
         key = self._get_item_key_from_handle(handle)
         size, timestamp = self._get_size_and_timestamp_with_cache(key)
@@ -515,10 +514,6 @@ class IrodsStorageBroker(BaseStorageBroker):
 #       key = self._get_item_key_from_handle(handle)
 #       return self._get_metadata_with_cache(key, "handle")
 
-    def _handle_to_fragment_absprefixpath(self, handle):
-        stem = generate_identifier(handle)
-        return os.path.join(self._metadata_fragments_abspath, stem)
-
     def add_item_metadata(self, handle, key, value):
         """Store the given key:value pair for the item associated with handle.
 
@@ -533,14 +528,6 @@ class IrodsStorageBroker(BaseStorageBroker):
         fpath = prefix + '.{}.json'.format(key)
 
         _put_obj(fpath, value)
-
-    def _metadata_dir_exists(self):
-        if self._use_cache:
-            if self._metadata_dir_exists_cache is None:
-                self._metadata_dir_exists_cache = \
-                    _path_exists(self._metadata_fragments_abspath)
-            return self._metadata_dir_exists_cache
-        return _path_exists(self._metadata_fragments_abspath)
 
     def get_item_metadata(self, handle):
         """Return dictionary containing all metadata associated with handle.
