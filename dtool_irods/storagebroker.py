@@ -17,7 +17,7 @@ from dtoolcore.utils import (
 from dtoolcore.filehasher import FileHasher, sha256sum_hexdigest
 from dtoolcore.storagebroker import StorageBrokerOSError, BaseStorageBroker
 
-from dtool_irods import CommandWrapper
+from dtool_irods import CommandWrapper, __version__
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +31,7 @@ _STRUCTURE_PARAMETERS = {
     "manifest_relpath": [".dtool", "manifest.json"],
     "overlays_directory": [".dtool", "overlays"],
     "metadata_fragments_directory": [".dtool", "tmp_fragments"],
+    "storage_broker_version": __version__,
 }
 
 _DTOOL_README_TXT = """README

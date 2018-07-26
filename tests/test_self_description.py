@@ -8,7 +8,7 @@ from . import tmp_uuid_and_uri  # NOQA
 def test_writing_of_dtool_structure_file(tmp_uuid_and_uri):  # NOQA
     from dtoolcore import ProtoDataSet, generate_admin_metadata
     from dtoolcore.utils import generous_parse_uri
-    from dtool_irods.storagebroker import _path_exists, _get_obj
+    from dtool_irods.storagebroker import _path_exists, _get_obj, __version__
 
     # Create a proto dataset.
     uuid, dest_uri = tmp_uuid_and_uri
@@ -40,6 +40,7 @@ def test_writing_of_dtool_structure_file(tmp_uuid_and_uri):  # NOQA
         "manifest_relpath": [".dtool", "manifest.json"],
         "overlays_directory": [".dtool", "overlays"],
         "metadata_fragments_directory": [".dtool", "tmp_fragments"],
+        "storage_broker_version": __version__,
     }
     actual_content = _get_obj(expected_irods_path)
     assert expected_content == actual_content
