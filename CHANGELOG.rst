@@ -26,12 +26,19 @@ Removed
 Fixed
 ^^^^^
 
-- Fixed issue with broken temporary files in the cache preventing fetching of
-  an item
-
 
 Security
 ^^^^^^^^
+
+
+[0.6.1] - 2018-08-03
+--------------------
+
+Fixed
+^^^^^
+
+- Fixed issue with broken temporary files in the cache preventing fetching of
+  an item
 
 
 [0.6.0] - 2018-07-26
