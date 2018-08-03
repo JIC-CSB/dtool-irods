@@ -26,6 +26,9 @@ Removed
 Fixed
 ^^^^^
 
+- Fixed issue with broken temporary files in the cache preventing fetching of
+  an item
+
 
 Security
 ^^^^^^^^

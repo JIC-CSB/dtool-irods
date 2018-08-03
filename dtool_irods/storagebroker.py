@@ -71,6 +71,11 @@ def _get_file(irods_path, local_abspath):
     cmd()
 
 
+def _get_file_forcefully(irods_path, local_abspath):
+    cmd = CommandWrapper(["iget", "-f", irods_path, local_abspath])
+    cmd()
+
+
 def _get_text(irods_path):
     """Get raw text from iRODS."""
     # Command to get contents of file to stdout.
@@ -436,7 +441,7 @@ class IrodsStorageBroker(BaseStorageBroker):
 
         if not os.path.isfile(local_item_abspath):
             tmp_local_item_abspath = local_item_abspath + ".tmp"
-            _get_file(irods_item_path, tmp_local_item_abspath)
+            _get_file_forcefully(irods_item_path, tmp_local_item_abspath)
             os.rename(tmp_local_item_abspath, local_item_abspath)
 
         return local_item_abspath
