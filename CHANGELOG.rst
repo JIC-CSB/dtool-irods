@@ -26,11 +26,18 @@ Removed
 Fixed
 ^^^^^
 
-- Fixed defect arising when readme contained unicode characters
-
 
 Security
 ^^^^^^^^
+
+
+[0.6.2] - 2018-09-20
+--------------------
+
+Fixed
+^^^^^
+
+- Fixed defect arising when readme contained unicode characters
 
 
 [0.6.1] - 2018-08-03
