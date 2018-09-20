@@ -327,6 +327,7 @@ def test_item_local_abspath_with_clean_cache(tmp_uuid_and_uri):  # NOQA
 
             assert os.path.isfile(fpath)
 
+
 def test_item_local_abspath_force_overwrite_of_tmp_file(tmp_uuid_and_uri):  # NOQA
 
     uuid, dest_uri = tmp_uuid_and_uri

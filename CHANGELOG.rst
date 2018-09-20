@@ -26,6 +26,8 @@ Removed
 Fixed
 ^^^^^
 
+- Fixed defect arising when readme contained unicode characters
+
 
 Security
 ^^^^^^^^

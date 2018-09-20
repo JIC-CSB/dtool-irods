@@ -91,7 +91,16 @@ def _put_text(irods_path, text):
     """Put raw text into iRODS."""
     with tempfile.NamedTemporaryFile() as fh:
         fpath = fh.name
-        fh.write(text.encode())
+
+        try:
+            # Make Python2 compatible.
+            text = unicode(text, "utf-8")
+        except (NameError, TypeError):
+            # NameError: We are running Python3 => text already unicode.
+            # TypeError: text is already of type unicode.
+            pass
+
+        fh.write(text.encode("utf-8"))
         fh.flush()
         cmd = CommandWrapper([
             "iput",
