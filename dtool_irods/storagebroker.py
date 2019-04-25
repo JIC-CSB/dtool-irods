@@ -13,6 +13,7 @@ from dtoolcore.utils import (
     get_config_value,
     mkdir_parents,
     generous_parse_uri,
+    DEFAULT_CACHE_PATH,
 )
 from dtoolcore.filehasher import FileHasher, sha256sum_hexdigest
 from dtoolcore.storagebroker import StorageBrokerOSError, BaseStorageBroker
@@ -241,9 +242,9 @@ class IrodsStorageBroker(BaseStorageBroker):
         )
 
         self._irods_cache_abspath = get_config_value(
-            "DTOOL_IRODS_CACHE_DIRECTORY",
+            "DTOOL_CACHE_DIRECTORY",
             config_path=config_path,
-            default=os.path.expanduser("~/.cache/dtool/irods")
+            default=DEFAULT_CACHE_PATH
         )
 
         # Cache for optimisation
