@@ -4,7 +4,7 @@ import sys
 import logging
 from subprocess import Popen, PIPE
 
-__version__ = "0.6.2"
+__version__ = "0.7.0"
 
 logger = logging.getLogger(__name__)
 
