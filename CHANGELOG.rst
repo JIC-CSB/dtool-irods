@@ -14,9 +14,6 @@ Added
 Changed
 ^^^^^^^
 
-- Cache environment variable changed from DTOOL_IRODS_CACHE_DIRECTORY to DTOOL_CACHE_DIRECTORY
-- Default cache directory changed from ``~/.cache/dtool/irods`` to ``~/.cache/dtool``
-
 
 Deprecated
 ^^^^^^^^^^
@@ -32,6 +29,15 @@ Fixed
 
 Security
 ^^^^^^^^
+
+[0.7.0] - 2019-04-25
+--------------------
+
+Changed
+^^^^^^^
+
+- Cache environment variable changed from DTOOL_IRODS_CACHE_DIRECTORY to DTOOL_CACHE_DIRECTORY
+- Default cache directory changed from ``~/.cache/dtool/irods`` to ``~/.cache/dtool``
 
 
 [0.6.2] - 2018-09-20
