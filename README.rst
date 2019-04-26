@@ -46,35 +46,6 @@ To list all the datasets in an iRODS zone one can use the command below.
 See the `dtool documentation <http://dtool.readthedocs.io>`_ for more detail.
 
 
-Configuring the local dtool iRODS cache
----------------------------------------
-
-When fetching items from a dataset, for example using the ``dtool item fetch``
-command, the content of the item is cached in a file on local disk. The default
-cache directory is ``~/.cache/dtool/irods``.
-
-One may want to change this directory. For example, if working on a HPC cluster
-to set it to a directory that lives on fast solid state disk. This can be achieved
-by setting the ``DTOOL_IRODS_CACHE_DIRECTORY`` environment variable. For example
-
-.. code-block::
-
-    mkdir -p /tmp/dtool/irods
-    export DTOOL_IRODS_CACHE_DIRECTORY=/tmp/dtool/irods
-
-Alternatively, when using the ``dtool`` command line interface one can add the
-``DTOOL_IRODS_CACHE_DIRECTORY`` key to the ``~/.config/dtool/dtool.json`` file.
-For example,
-
-.. code-block:: json
-
-    {
-       "DTOOL_IRODS_CACHE_DIRECTORY": "/tmp/dtool/irods"
-    }
-
-If the file does not exist one may need to create it.
-
-
 Related packages
 ----------------
 
