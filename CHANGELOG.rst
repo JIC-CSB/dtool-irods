@@ -10,8 +10,6 @@ This change log uses principles from `keep a changelog <http://keepachangelog.co
 Added
 ^^^^^
 
-- Added optimisation to improve speed when copying data from iRODS
-
 
 Changed
 ^^^^^^^
@@ -32,6 +30,15 @@ Fixed
 
 Security
 ^^^^^^^^
+
+[0.8.0] - 2019-07-12
+--------------------
+
+Added
+^^^^^
+
+- Added optimisation to improve speed when copying data from iRODS
+
 
 [0.7.0] - 2019-04-25
 --------------------
