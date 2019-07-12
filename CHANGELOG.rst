@@ -10,6 +10,8 @@ This change log uses principles from `keep a changelog <http://keepachangelog.co
 Added
 ^^^^^
 
+- Added optimisation to improve speed when copying data from iRODS
+
 
 Changed
 ^^^^^^^
@@ -25,6 +27,7 @@ Removed
 
 Fixed
 ^^^^^
+
 
 
 Security
