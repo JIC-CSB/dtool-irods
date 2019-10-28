@@ -26,6 +26,8 @@ Removed
 Fixed
 ^^^^^
 
+- Improved way in which iRODS authentication timeout messages are reported back
+  to end users
 
 
 Security

@@ -9,6 +9,10 @@ __version__ = "0.8.0"
 logger = logging.getLogger(__name__)
 
 
+class IinitRuntimeError(RuntimeError):
+    pass
+
+
 class CommandWrapper(object):
     """Class for creating API calls from command line tools."""
 
@@ -46,20 +50,18 @@ class CommandWrapper(object):
         if self.success():
             return self.stdout
         else:
+            # The iRODS setup has probably not been configured at all.
+            if self.stderr.find("USER_RODS_HOST_EMPTY") != -1:
+                raise(IinitRuntimeError())
+            if self.stderr.find("CAT_INVALID_AUTHENTICATION") != -1:
+                raise(IinitRuntimeError())
+            if self.stderr.find("CAT_INVALID_USER") != -1:
+                raise(IinitRuntimeError())
+
             if exit_on_failure:
                 logger.warning("Command failed: {}".format(self.args))
                 logger.warning(self.stderr)
                 sys.stderr.write(self.stderr)
-
-                # The iRODS setup has probably not been configured at all.
-                if self.stderr.find("USER_RODS_HOST_EMPTY") != -1:
-                    print("Try running the iRODS command: iinit")
-
-                # The iRODS authentication has probably timed out.
-                if self.stderr.find("CAT_INVALID_AUTHENTICATION") != -1:
-                    print("Try running the iRODS command: iinit")
-                if self.stderr.find("CAT_INVALID_USER") != -1:
-                    print("Try running the iRODS command: iinit")
 
                 sys.exit(self.returncode)
             else:

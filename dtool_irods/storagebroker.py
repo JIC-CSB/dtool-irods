@@ -1,6 +1,7 @@
 """iRODS storage broker."""
 
 import os
+import sys
 import json
 import logging
 import tempfile
@@ -18,7 +19,7 @@ from dtoolcore.utils import (
 from dtoolcore.filehasher import FileHasher, sha256sum_hexdigest
 from dtoolcore.storagebroker import StorageBrokerOSError, BaseStorageBroker
 
-from dtool_irods import CommandWrapper, __version__
+from dtool_irods import CommandWrapper, __version__, IinitRuntimeError
 
 logger = logging.getLogger(__name__)
 
@@ -67,14 +68,24 @@ Per item descriptive metadata: .dtool/overlays/
 # iRODS helper functions.
 #############################################################################
 
+def _run_cmd(cmd, exit_on_failure=False):
+    try:
+        stdout = cmd(exit_on_failure=exit_on_failure)  # NOQA
+        return cmd
+    except IinitRuntimeError:
+        print("There was an issue communicating with iRODS")
+        print("Try running the iRODS command: iinit")
+        sys.exit(800)
+
+
 def _get_file(irods_path, local_abspath):
     cmd = CommandWrapper(["iget", irods_path, local_abspath])
-    cmd()
+    _run_cmd(cmd)
 
 
 def _get_file_forcefully(irods_path, local_abspath):
     cmd = CommandWrapper(["iget", "-f", irods_path, local_abspath])
-    cmd()
+    _run_cmd(cmd)
 
 
 def _get_text(irods_path):
@@ -85,7 +96,7 @@ def _get_text(irods_path):
         irods_path,
         "-"
     ])
-    return cmd()
+    return _run_cmd(cmd).stdout
 
 
 def _put_text(irods_path, text):
@@ -109,7 +120,7 @@ def _put_text(irods_path, text):
             fpath,
             irods_path
         ])
-        cmd()
+        _run_cmd(cmd)
     assert not os.path.isfile(fpath)
 
 
@@ -126,13 +137,13 @@ def _put_obj(irods_path, obj):
 
 def _path_exists(irods_path):
     cmd = CommandWrapper(["ils", irods_path])
-    cmd(exit_on_failure=False)
+    cmd = _run_cmd(cmd, exit_on_failure=False)
     return cmd.success()
 
 
 def _mkdir(irods_path):
     cmd = CommandWrapper(["imkdir", irods_path])
-    cmd()
+    _run_cmd(cmd)
 
 
 def _mkdir_if_missing(irods_path):
@@ -142,12 +153,12 @@ def _mkdir_if_missing(irods_path):
 
 def _cp(fpath, irods_path):
     cmd = CommandWrapper(["iput", "-f", fpath, irods_path])
-    cmd()
+    _run_cmd(cmd)
 
 
 def _rm(irods_path):
     cmd = CommandWrapper(["irm", "-rf", irods_path])
-    cmd()
+    _run_cmd(cmd)
 
 
 def _rm_if_exists(irods_path):
@@ -157,7 +168,7 @@ def _rm_if_exists(irods_path):
 
 def _ls(irods_path):
     cmd = CommandWrapper(["ils", irods_path])
-    cmd()
+    cmd = _run_cmd(cmd)
 
     def remove_header_line(lines):
         return lines[1:]
@@ -190,13 +201,13 @@ def _ls_abspaths(irods_path):
 
 def _put_metadata(irods_path, key, value):
     cmd = CommandWrapper(["imeta", "set", "-d", irods_path, key, value])
-    cmd()
+    _run_cmd(cmd)
 
 
 def _get_checksum(irods_path):
     # Get the hash.
     cmd = CommandWrapper(["ichksum", "-K", irods_path])
-    cmd()
+    cmd = _run_cmd(cmd)
     line = cmd.stdout.strip()
     info = line.split()
     compound_chksum = info[1]
