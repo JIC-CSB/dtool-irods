@@ -20,7 +20,7 @@ from dtool_irods.storagebroker import (
 _HERE = os.path.dirname(__file__)
 TEST_SAMPLE_DATA = os.path.join(_HERE, "data")
 
-TEST_ZONE = "/jic_archive"
+TEST_ZONE = "/jic_overflow/dtool-testing"
 
 
 @contextmanager

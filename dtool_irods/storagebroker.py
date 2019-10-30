@@ -32,6 +32,7 @@ _STRUCTURE_PARAMETERS = {
     "dtool_readme_relpath": [".dtool", "README.txt"],
     "manifest_relpath": [".dtool", "manifest.json"],
     "overlays_directory": [".dtool", "overlays"],
+    "annotations_directory": [".dtool", "annotations"],
     "metadata_fragments_directory": [".dtool", "tmp_fragments"],
     "storage_broker_version": __version__,
 }
@@ -61,6 +62,7 @@ Administrative metadata describing the dataset: .dtool/dtool
 Structural metadata describing the dataset: .dtool/structure.json
 Structural metadata describing the data items: .dtool/manifest.json
 Per item descriptive metadata: .dtool/overlays/
+Dataset key/value pairs metadata: .dtool/annotations/
 """
 
 
@@ -248,6 +250,9 @@ class IrodsStorageBroker(BaseStorageBroker):
         self._dtool_abspath = self._generate_abspath("dtool_directory")
         self._data_abspath = self._generate_abspath("data_directory")
         self._overlays_abspath = self._generate_abspath("overlays_directory")
+        self._annotations_abspath = self._generate_abspath(
+            "annotations_directory"
+        )
         self._metadata_fragments_abspath = self._generate_abspath(
             "metadata_fragments_directory"
         )
@@ -404,6 +409,8 @@ class IrodsStorageBroker(BaseStorageBroker):
         return _get_text(key)
 
     def put_text(self, key, text):
+        parent_dir = os.path.dirname(key)
+        _mkdir_if_missing(parent_dir)
         _put_text(key, text)
 
     def get_admin_metadata_key(self):
@@ -417,6 +424,12 @@ class IrodsStorageBroker(BaseStorageBroker):
 
     def get_overlay_key(self, overlay_name):
         return os.path.join(self._overlays_abspath, overlay_name + '.json')
+
+    def get_annotation_key(self, annotation_name):
+        return os.path.join(
+            self._annotations_abspath,
+            annotation_name + '.json'
+        )
 
     def get_structure_key(self):
         return self._generate_abspath("structure_metadata_relpath")
@@ -438,6 +451,14 @@ class IrodsStorageBroker(BaseStorageBroker):
             name, ext = os.path.splitext(fname)
             overlay_names.append(name)
         return overlay_names
+
+    def list_annotation_names(self):
+        """Return list of annotation names."""
+        annotation_names = []
+        for fname in _ls(self._annotations_abspath):
+            name, ext = os.path.splitext(fname)
+            annotation_names.append(name)
+        return annotation_names
 
     def get_item_abspath(self, identifier):
         """Return absolute path at which item content can be accessed.
@@ -491,7 +512,8 @@ class IrodsStorageBroker(BaseStorageBroker):
         essential_subdirectories = [
             self._dtool_abspath,
             self._data_abspath,
-            self._overlays_abspath
+            self._overlays_abspath,
+            self._annotations_abspath
         ]
         for abspath in essential_subdirectories:
             _mkdir_if_missing(abspath)

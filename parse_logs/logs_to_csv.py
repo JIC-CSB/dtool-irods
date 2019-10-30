@@ -89,7 +89,7 @@ def parse_logs(log_file, dataset):
         item_data = ItemData(dataset)
         item_data.echo_csv_header()
 
-        use_next_line_as_upload_start = False
+#        use_next_line_as_upload_start = False
 
         for line in fh:
             try:
