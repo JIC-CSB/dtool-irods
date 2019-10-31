@@ -10,8 +10,6 @@ This change log uses principles from `keep a changelog <http://keepachangelog.co
 Added
 ^^^^^
 
-- Added support for dtool annotations
-
 
 Changed
 ^^^^^^^
@@ -28,12 +26,25 @@ Removed
 Fixed
 ^^^^^
 
-- Improved way in which iRODS authentication timeout messages are reported back
-  to end users
-
 
 Security
 ^^^^^^^^
+
+
+[0.9.0] - 2019-10-31
+--------------------
+
+Added
+^^^^^
+
+- Added support for dataset annotations
+
+Fixed
+^^^^^
+
+- Improved way in which iRODS authentication timeout messages are reported back
+  to end users
+
 
 [0.8.0] - 2019-07-12
 --------------------
