@@ -17,7 +17,7 @@ setup(
     download_url="{}/tarball/{}".format(url, version),
     install_requires=[
         "click",
-        "dtoolcore>=3.10",
+        "dtoolcore>=3.13",
     ],
     entry_points={
         "dtool.storage_brokers": [
