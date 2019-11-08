@@ -26,13 +26,20 @@ Removed
 Fixed
 ^^^^^
 
-- Fixed defect introduced during code refactoring in 0.9.0 that resulted in
-  iRODS command being able to fail silently when they should have been
-  complaining loudly
-
 
 Security
 ^^^^^^^^
+
+
+[0.9.1] - 2019-11-08
+--------------------
+
+Fixed
+^^^^^
+
+- Fixed defect introduced during code refactoring in 0.9.0 that resulted in
+  iRODS command being able to fail silently when they should have been
+  complaining loudly
 
 
 [0.9.0] - 2019-10-31
