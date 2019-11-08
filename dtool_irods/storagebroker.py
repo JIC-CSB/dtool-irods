@@ -70,7 +70,9 @@ Dataset key/value pairs metadata: .dtool/annotations/
 # iRODS helper functions.
 #############################################################################
 
-def _run_cmd(cmd, exit_on_failure=False):
+# The exit_on_failure argument should default to True!
+# Otherwise bad things can happen, like a _cp command failing silently.
+def _run_cmd(cmd, exit_on_failure=True):
     try:
         stdout = cmd(exit_on_failure=exit_on_failure)  # NOQA
         return cmd
