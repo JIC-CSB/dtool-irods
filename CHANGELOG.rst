@@ -26,6 +26,10 @@ Removed
 Fixed
 ^^^^^
 
+- Fixed defect where old dataset that predated the concept of annotations
+  failed to copy from iRODS because it expected an annotations collection to
+  exist in iRODS
+
 
 Security
 ^^^^^^^^

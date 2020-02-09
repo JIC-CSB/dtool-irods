@@ -457,6 +457,8 @@ class IrodsStorageBroker(BaseStorageBroker):
     def list_annotation_names(self):
         """Return list of annotation names."""
         annotation_names = []
+        if not _path_exists(self._annotations_abspath):
+            return annotation_names
         for fname in _ls(self._annotations_abspath):
             name, ext = os.path.splitext(fname)
             annotation_names.append(name)
