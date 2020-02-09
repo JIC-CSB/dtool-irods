@@ -26,13 +26,19 @@ Removed
 Fixed
 ^^^^^
 
-- Fixed defect where old dataset that predated the concept of annotations
-  failed to copy from iRODS because it expected an annotations collection to
-  exist in iRODS
-
 
 Security
 ^^^^^^^^
+
+[0.9.2] - 2020-02-09
+--------------------
+
+Fixed
+^^^^^
+
+- Fixed defect where old dataset that predated the concept of annotations
+  failed to copy from iRODS because it expected an annotations collection to
+  exist in iRODS
 
 
 [0.9.1] - 2019-11-08
