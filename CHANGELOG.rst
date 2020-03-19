@@ -7,6 +7,7 @@ This change log uses principles from `keep a changelog <http://keepachangelog.co
 [Unreleased]
 ------------
 
+
 Added
 ^^^^^
 
@@ -29,6 +30,19 @@ Fixed
 
 Security
 ^^^^^^^^
+
+[0.10.0] - 2020-03-19
+---------------------
+
+Added support for tags.
+
+Added
+^^^^^
+
+- Added ``dtool_irods.storagebroker.IrodsStorageBroker.delete_key()`` method
+- Added ``dtool_irods.storagebroker.IrodsStorageBroker.get_tag_key()`` method
+- Added ``dtool_irods.storagebroker.IrodsStorageBroker.list_tags()`` method
+
 
 [0.9.2] - 2020-02-09
 --------------------
