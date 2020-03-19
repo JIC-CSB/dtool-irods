@@ -33,6 +33,7 @@ _STRUCTURE_PARAMETERS = {
     "manifest_relpath": [".dtool", "manifest.json"],
     "overlays_directory": [".dtool", "overlays"],
     "annotations_directory": [".dtool", "annotations"],
+    "tags_directory": [".dtool", "tags"],
     "metadata_fragments_directory": [".dtool", "tmp_fragments"],
     "storage_broker_version": __version__,
 }
@@ -63,6 +64,7 @@ Structural metadata describing the dataset: .dtool/structure.json
 Structural metadata describing the data items: .dtool/manifest.json
 Per item descriptive metadata: .dtool/overlays/
 Dataset key/value pairs metadata: .dtool/annotations/
+Dataset tags metadata: .dtool/tags/
 """
 
 
@@ -255,6 +257,9 @@ class IrodsStorageBroker(BaseStorageBroker):
         self._annotations_abspath = self._generate_abspath(
             "annotations_directory"
         )
+        self._tags_abspath = self._generate_abspath(
+            "tags_directory"
+        )
         self._metadata_fragments_abspath = self._generate_abspath(
             "metadata_fragments_directory"
         )
@@ -415,6 +420,9 @@ class IrodsStorageBroker(BaseStorageBroker):
         _mkdir_if_missing(parent_dir)
         _put_text(key, text)
 
+    def delete_key(self, key):
+        _rm_if_exists(key)
+
     def get_admin_metadata_key(self):
         return self._generate_abspath("admin_metadata_relpath")
 
@@ -432,6 +440,9 @@ class IrodsStorageBroker(BaseStorageBroker):
             self._annotations_abspath,
             annotation_name + '.json'
         )
+
+    def get_tag_key(self, tag):
+        return os.path.join(self._tags_abspath, tag)
 
     def get_structure_key(self):
         return self._generate_abspath("structure_metadata_relpath")
@@ -463,6 +474,15 @@ class IrodsStorageBroker(BaseStorageBroker):
             name, ext = os.path.splitext(fname)
             annotation_names.append(name)
         return annotation_names
+
+    def list_tags(self):
+        """Return list of tags."""
+        tags = []
+        if not _path_exists(self._tags_abspath):
+            return tags
+        for tag in _ls(self._tags_abspath):
+            tags.append(tag)
+        return tags
 
     def get_item_abspath(self, identifier):
         """Return absolute path at which item content can be accessed.
