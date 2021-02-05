@@ -27,13 +27,20 @@ Removed
 Fixed
 ^^^^^
 
+
+Security
+^^^^^^^^
+
+[0.10.1] - 2021-02-05
+---------------------
+
+Fixed
+^^^^^
+
 - Fixed defect where logging was done in the root logger, rather than in the
   logger of the dtool_irods module.
   Issue: https://github.com/jic-dtool/dtool-irods/issues
 
-
-Security
-^^^^^^^^
 
 [0.10.0] - 2020-03-19
 ---------------------
