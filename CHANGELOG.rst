@@ -27,6 +27,10 @@ Removed
 Fixed
 ^^^^^
 
+- Fixed defect where logging was done in the root logger, rather than in the
+  logger of the dtool_irods module.
+  Issue: https://github.com/jic-dtool/dtool-irods/issues
+
 
 Security
 ^^^^^^^^
