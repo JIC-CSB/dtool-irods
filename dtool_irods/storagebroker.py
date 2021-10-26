@@ -7,6 +7,7 @@ import logging
 import tempfile
 import time
 import datetime
+import re
 
 from dtoolcore.utils import (
     generate_identifier,
@@ -209,15 +210,37 @@ def _put_metadata(irods_path, key, value):
     cmd = CommandWrapper(["imeta", "set", "-d", irods_path, key, value])
     _run_cmd(cmd)
 
+def _verify_chksum(irods_path, verify=True):
+    """ Run ichksum either with or without verify. """
+    if verify:
+        arg = '-K'
+    else:
+        arg = ''
+    cmd = CommandWrapper(["ichksum", arg, irods_path])
+    cmd = _run_cmd(cmd)
+    out = cmd.stdout
+
+    pattern = re.compile('(?P<uuid>\w+)\s+(?P<alg>\w+):(?P<chksum>\S+)', re.MULTILINE)
+    matches = pattern.search(out)
+
+    chksum = ''
+    if matches and matches.group('chksum'):
+        chksum = matches.group('chksum')
+
+    return chksum
 
 def _get_checksum(irods_path):
-    # Get the hash.
-    cmd = CommandWrapper(["ichksum", "-K", irods_path])
-    cmd = _run_cmd(cmd)
-    line = cmd.stdout.strip()
-    info = line.split()
-    compound_chksum = info[1]
-    alg, checksum = compound_chksum.split(":")
+    """ Try ichksum first with verify then without if that fails. """
+    # request hash with verification
+    checksum = _verify_chksum(irods_path)
+
+    if not checksum:
+        # iRODS didn't give us a hash -> requesy without verification
+        logger.warning('irods_path {} was not verified. Please try "dtool verify {}"'.format(irods_path, irods_path))
+        checksum = _verify_chksum(irods_path, verify=False)
+    
+    assert checksum, 'Missing checksum in output.'
+    
     return checksum
 
 

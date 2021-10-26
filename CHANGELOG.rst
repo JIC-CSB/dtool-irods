@@ -31,6 +31,17 @@ Fixed
 Security
 ^^^^^^^^
 
+[0.10.2] - 2021-10-25
+---------------------
+
+Fixed
+^^^^^
+
+- Put in workaround for an error that causes iRODS to misreport ickksum -K.
+  Issue: https://github.com/jic-dtool/dtool-irods/issues
+
+
+
 [0.10.1] - 2021-02-05
 ---------------------
 
