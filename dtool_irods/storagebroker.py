@@ -236,7 +236,7 @@ def _get_checksum(irods_path):
 
     if not checksum:
         # iRODS didn't give us a hash -> requesy without verification
-        logger.warning('irods_path {} was not verified. Please try "dtool verify {}"'.format(irods_path, irods_path))
+        #logger.warning('irods_path {} was not verified.'.format(irods_path))
         checksum = _verify_chksum(irods_path, verify=False)
     
     assert checksum, 'Missing checksum in output.'
